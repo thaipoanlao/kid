@@ -18,24 +18,28 @@
   .app-logo { background: #ff0000; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
   .app-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
   
-  .search-box { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 8px 16px; height: 40px; }
+  .search-container { display: flex; gap: 8px; }
+  .search-box { flex: 1; display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 8px 16px; height: 40px; }
   .search-box svg { width: 18px; height: 18px; fill: #606060; margin-right: 10px; }
   .search-box input { border: none; background: transparent; outline: none; width: 100%; font-family: 'Sarabun', sans-serif; font-size: 15px; }
-  .search-box input::placeholder { color: #606060; }
+  .search-btn { background: #0f0f0f; color: #fff; border: none; border-radius: 20px; padding: 0 16px; font-family: 'Sarabun', sans-serif; font-weight: 600; cursor: pointer; height: 40px; }
+  .search-btn:active { background: #333; }
   
   /* Song List */
   .song-list { display: flex; flex-direction: column; }
-  .song-item { display: flex; align-items: center; padding: 12px 16px; cursor: pointer; transition: background 0.2s; }
+  .song-item { display: flex; align-items: center; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #f9f9f9; }
   .song-item:active { background: #f2f2f2; }
-  .song-item.active { background: #f9f9f9; }
+  .song-item.active { background: #fdf5f5; }
   .song-item.active .song-title { color: #ff0000; }
   
-  .song-thumb { width: 44px; height: 44px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 14px; flex-shrink: 0; }
-  .song-info { flex: 1; overflow: hidden; }
-  .song-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; line-height: 1.3; }
-  .song-meta { font-size: 13px; color: #606060; }
+  /* Thumbnail styling */
+  .song-thumb-img { width: 80px; height: 45px; object-fit: cover; border-radius: 6px; margin-right: 14px; flex-shrink: 0; background: #e5e5e5; }
   
-  /* Playing Animation (Equalizer) */
+  .song-info { flex: 1; overflow: hidden; }
+  .song-title { font-size: 15px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; line-height: 1.3; }
+  .song-meta { font-size: 12px; color: #606060; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Playing Animation */
   .playing-anim { display: none; align-items: flex-end; gap: 2px; height: 14px; margin-left: 10px; }
   .song-item.active.playing .playing-anim { display: flex; }
   .bar { width: 3px; background: #ff0000; animation: bounce 1s infinite ease-in-out; }
@@ -64,10 +68,10 @@
 
   /* Utils */
   #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
-  .empty-state { text-align: center; padding: 40px 16px; color: #606060; font-size: 15px; }
+  .status-msg { text-align: center; padding: 40px 16px; color: #606060; font-size: 15px; }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -78,14 +82,18 @@
     <div class="app-logo">🎵</div>
     <div class="app-title">เพลงของเฌอ</div>
   </div>
-  <div class="search-box">
-    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-    <input type="text" id="searchInput" placeholder="ค้นหาเพลง..." oninput="handleSearch(event)">
+  <div class="search-container">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="searchInput" placeholder="พิมพ์ชื่อเพลงที่นี่..." onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="search-btn" onclick="searchYouTube()">ค้นหา</button>
   </div>
 </div>
 
 <div class="song-list" id="songs-list">
-  </div>
+  <div class="status-msg">พิมพ์ชื่อเพลงที่ต้องการค้นหาด้านบนเลย! ✨</div>
+</div>
 
 <div class="footer">by thpl.me</div>
 
@@ -114,43 +122,71 @@
 </div>
 
 <script>
-// รายการเพลง
-const SONGS = [
-  { id: 'K4DyBUG242c', emoji: '🎵', name: 'เพลงทดสอบ 1 (ไม่มีลิขสิทธิ์)' },
-  { id: 'jfKfPfyJRdk', emoji: '🌟', name: 'เพลงทดสอบ 2' },
-  { id: '0Vsh5wqNKtg', emoji: '🦈', name: 'เบบี้ชาร์ค' },
-  { id: 'xLzLnw7S05c', emoji: '🌊', name: 'สำรวจทะเล' },
-  { id: 'O7hFFxU56gE', emoji: '🐰', name: 'กระต่ายน้อย' },
-  { id: '2ckUJZYg1Js', emoji: '🎪', name: 'สวนสนุก' },
-  { id: 'HXN2aQ1IZHQ', emoji: '🌈', name: 'สายรุ้ง' },
-  { id: '1Mb92XPCGSo', emoji: '🎠', name: 'ม้าหมุน' },
-  { id: 'YYJveqE92x8', emoji: '🦋', name: 'ผีเสื้อ' },
-  { id: 'fXF7l_RBqeE', emoji: '🎶', name: 'ดนตรีของหนู' },
-];
+// ==========================================
+// 🔴 คำเตือน: คุณต้องนำ API Key ของคุณมาใส่ตรงนี้
+// ==========================================
+const YOUTUBE_API_KEY = 'AIzaSyCfnKQuwgtctUTFZRmwyPD66XHEgvAGETg'; 
 
+let SONGS = [];
 let player = null;
 let currentIdx = -1;
 let isPlaying = false;
 let progressTimer = null;
-let searchQuery = '';
 
-// ระบบวาดหน้าจอรายชื่อเพลง + ระบบค้นหา
-function renderList() {
-  const list = document.getElementById('songs-list');
-  const filtered = SONGS.map((s, i) => ({...s, origIdx: i}))
-                        .filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  
-  if(filtered.length === 0) {
-      list.innerHTML = '<div class="empty-state">ไม่พบเพลงที่ค้นหา 🥺</div>';
-      return;
+// กด Enter เพื่อค้นหา
+function handleKeyPress(e) {
+  if (e.key === 'Enter') searchYouTube();
+}
+
+// ระบบค้นหาผ่าน YouTube Data API v3
+async function searchYouTube() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+
+  const listEl = document.getElementById('songs-list');
+  listEl.innerHTML = '<div class="status-msg">กำลังค้นหา... ⏳</div>';
+
+  if (YOUTUBE_API_KEY === 'ใส่_API_KEY_ของคุณที่นี่') {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">กรุณาใส่ API Key ในโค้ดก่อนใช้งานครับ 🚨</div>';
+    return;
   }
 
-  list.innerHTML = filtered.map(s => `
-    <div class="song-item ${currentIdx === s.origIdx ? 'active' : ''} ${currentIdx === s.origIdx && isPlaying ? 'playing' : ''}" onclick="playSong(${s.origIdx})">
-      <div class="song-thumb">${s.emoji}</div>
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.error) {
+      listEl.innerHTML = `<div class="status-msg" style="color:red;">Error: ${data.error.message}</div>`;
+      return;
+    }
+
+    if (data.items && data.items.length > 0) {
+      // แปลงข้อมูลจาก API มาใส่ใน Array SONGS ของเรา
+      SONGS = data.items.map(item => ({
+        id: item.id.videoId,
+        name: decodeHTML(item.snippet.title),
+        channel: decodeHTML(item.snippet.channelTitle),
+        thumb: item.snippet.thumbnails.medium.url // ใช้รูปขนาดกลางเพื่อความคมชัด
+      }));
+      renderList();
+    } else {
+      listEl.innerHTML = '<div class="status-msg">ไม่พบเพลงที่คุณหา 🥺</div>';
+    }
+  } catch (error) {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">ระบบค้นหามีปัญหา โปรดลองใหม่</div>';
+  }
+}
+
+// วาดรายการเพลงบนหน้าจอ
+function renderList() {
+  const list = document.getElementById('songs-list');
+  list.innerHTML = SONGS.map((s, i) => `
+    <div class="song-item ${currentIdx === i ? 'active' : ''} ${currentIdx === i && isPlaying ? 'playing' : ''}" onclick="playSong(${i})">
+      <img src="${s.thumb}" class="song-thumb-img" alt="thumbnail">
       <div class="song-info">
         <div class="song-title">${s.name}</div>
-        <div class="song-meta">แทร็กที่ ${s.origIdx + 1}</div>
+        <div class="song-meta">${s.channel}</div>
       </div>
       <div class="playing-anim">
         <div class="bar"></div><div class="bar"></div><div class="bar"></div>
@@ -159,15 +195,19 @@ function renderList() {
   `).join('');
 }
 
-function handleSearch(e) {
-  searchQuery = e.target.value;
-  renderList();
+// ช่วยถอดรหัสตัวอักษรแปลกๆ จาก YouTube (เช่น &amp;)
+function decodeHTML(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
 }
 
-// YouTube IFrame API
+// ==========================================
+// ส่วนของการเล่นเพลง (IFrame API) ยังเหมือนเดิม
+// ==========================================
 window.onYouTubeIframeAPIReady = function () {
   player = new YT.Player('yt-player', {
-    height: '1', width: '1', videoId: SONGS[0].id,
+    height: '1', width: '1', videoId: '',
     playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
     events: { onReady: onPlayerReady, onStateChange: onStateChange, onError: onPlayerError }
   });
@@ -176,47 +216,36 @@ window.onYouTubeIframeAPIReady = function () {
 function onPlayerReady(e) { player.setVolume(100); }
 
 function onPlayerError(e) {
-  document.getElementById('now-title').textContent = "เล่นไม่ได้ (ติดลิขสิทธิ์)";
+  document.getElementById('now-title').textContent = "เล่นไม่ได้ (ติดลิขสิทธิ์ช่อง)";
   document.getElementById('now-title').style.color = "#ff0000";
   setPlayingState(false); stopProgress();
 }
 
 function onStateChange(e) {
   document.getElementById('now-title').style.color = "#0f0f0f";
-
   if (e.data === YT.PlayerState.PLAYING) {
-    setPlayingState(true);
-    const data = player.getVideoData();
-    if (data && data.title) {
-      document.getElementById('now-title').textContent = data.title;
-      if (currentIdx >= 0) SONGS[currentIdx].name = data.title;
-    }
-    renderList(); // อัปเดตแอนิเมชันคลื่นเสียง
-    startProgress();
+    setPlayingState(true); startProgress(); renderList();
   } else if (e.data === YT.PlayerState.PAUSED) {
     setPlayingState(false); stopProgress(); renderList();
   } else if (e.data === YT.PlayerState.ENDED) {
     setPlayingState(false); stopProgress(); nextSong();
-  } else if (e.data === YT.PlayerState.BUFFERING) {
-    document.getElementById('now-title').textContent = 'กำลังโหลด...';
   }
 }
 
 function playSong(idx) {
   if (!player || !player.loadVideoById) return;
   currentIdx = idx;
-  document.getElementById('now-title').textContent = 'กำลังโหลด...';
-  document.getElementById('now-title').style.color = "#0f0f0f";
+  document.getElementById('now-title').textContent = SONGS[idx].name;
   document.getElementById('progress-fill').style.width = '0%';
   document.getElementById('time-cur').textContent = '0:00';
   document.getElementById('time-dur').textContent = '0:00';
   player.loadVideoById(SONGS[idx].id);
-  renderList(); // อัปเดตไฮไลท์สีแดงที่รายการเพลง
+  renderList();
 }
 
 function togglePlay() {
   if (!player || !player.getPlayerState) return;
-  if (currentIdx === -1) { playSong(0); return; }
+  if (currentIdx === -1) { if(SONGS.length > 0) playSong(0); return; }
   const state = player.getPlayerState();
   if (state === YT.PlayerState.PLAYING) player.pauseVideo();
   else player.playVideo();
@@ -252,8 +281,6 @@ function seekTo(e) {
   const dur = player.getDuration() || 0;
   if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
 }
-
-renderList();
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
 </body>
