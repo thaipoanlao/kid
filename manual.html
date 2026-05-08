@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="เพลงของเฌอ">
+<title>🎵 เพลงของเฌอ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Sarabun', 'Nunito', sans-serif;
+    background: #FFF5EC;
+    min-height: 100vh;
+    padding: 0;
+    user-select: none;
+  }
+
+  .app {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .header-emoji { font-size: 28px; }
+  .header-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #C45000;
+    letter-spacing: -0.3px;
+  }
+
+  /* Now Playing Card */
+  .now-playing {
+    background: #fff;
+    border-radius: 24px;
+    border: 1.5px solid #FFD8B8;
+    padding: 24px 20px 20px;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(200,80,0,0.06);
+  }
+
+  .album-art {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: #FFD8B8;
+    margin: 0 auto 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 44px;
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .album-art.spinning {
+    animation: spin 4s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .now-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #C45000;
+    margin-bottom: 3px;
+    min-height: 22px;
+    line-height: 1.3;
+    padding: 0 10px;
+  }
+  .now-status {
+    font-size: 13px;
+    color: #E8906A;
+    margin-bottom: 16px;
+    min-height: 18px;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .btn-ctrl {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1.5px solid #FFD8B8;
+    background: #FFF5EC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-ctrl:active { transform: scale(0.92); background: #FFD8B8; }
+  .btn-ctrl svg { width: 20px; height: 20px; fill: #C45000; }
+
+  .btn-play-main {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #FF7A30;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 4px 14px rgba(255,122,48,0.35);
+  }
+  .btn-play-main:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(255,122,48,0.3); }
+  .btn-play-main svg { width: 28px; height: 28px; fill: #fff; }
+
+  /* Progress bar */
+  .progress-wrap {
+    margin: 14px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .time-label { font-size: 12px; color: #E8906A; font-weight: 600; min-width: 36px; }
+  .time-label.right { text-align: right; }
+  .progress-bar {
+    flex: 1;
+    height: 5px;
+    background: #FFD8B8;
+    border-radius: 99px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #FF7A30;
+    border-radius: 99px;
+    width: 0%;
+    transition: width 0.5s linear;
+  }
+
+  /* Section title */
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #C45000;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 12px;
+  }
+
+  /* Songs grid */
+  .songs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .song-btn {
+    background: #fff;
+    border: 1.5px solid #FFD8B8;
+    border-radius: 18px;
+    padding: 16px 10px 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .song-btn:active { transform: scale(0.96); }
+  .song-btn.active {
+    border: 2px solid #FF7A30;
+    background: #FFF0E6;
+    box-shadow: 0 2px 10px rgba(255,122,48,0.15);
+  }
+  .song-btn.active::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #FF7A30;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .song-emoji { font-size: 30px; margin-bottom: 8px; }
+  .song-name {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #C45000;
+    line-height: 1.35;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .song-num {
+    font-size: 10px;
+    color: #E8906A;
+    margin-top: 2px;
+  }
+
+  /* Volume */
+  .vol-card {
+    background: #fff;
+    border: 1.5px solid #FFD8B8;
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .vol-icon { font-size: 18px; }
+  .vol-label { font-size: 13px; font-weight: 700; color: #C45000; white-space: nowrap; }
+  input[type=range] {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 5px;
+    border-radius: 99px;
+    background: #FFD8B8;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FF7A30;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(255,122,48,0.4);
+  }
+  .vol-val { font-size: 13px; font-weight: 700; color: #C45000; min-width: 32px; text-align: right; }
+
+  /* Hidden YouTube player */
+  #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="yt-player"></div>
+
+<div class="app">
+  <div class="header">
+    <span class="header-emoji">🎵</span>
+    <span class="header-title">เพลงของเฌอ</span>
+  </div>
+
+  <div class="now-playing">
+    <div class="album-art" id="album-art">🎶</div>
+    <div class="now-title" id="now-title">กดเพลงเพื่อเริ่มเล่น</div>
+    <div class="now-status" id="now-status">เลือกเพลงด้านล่างได้เลย</div>
+    <div class="controls">
+      <div class="btn-ctrl" id="btn-prev" onclick="prevSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </div>
+      <div class="btn-play-main" id="btn-play" onclick="togglePlay()">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </div>
+      <div class="btn-ctrl" id="btn-next" onclick="nextSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <span class="time-label" id="time-cur">0:00</span>
+      <div class="progress-bar" onclick="seekTo(event)">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <span class="time-label right" id="time-dur">0:00</span>
+    </div>
+  </div>
+
+  <div class="section-title">เลือกเพลง</div>
+  <div class="songs-grid" id="songs-grid">
+    </div>
+
+  <div class="vol-card">
+    <span class="vol-icon">🔊</span>
+    <span class="vol-label">เสียง</span>
+    <input type="range" min="0" max="100" value="80" id="vol-slider" oninput="setVolume(this.value)">
+    <span class="vol-val" id="vol-val">80</span>
+  </div>
+</div>
+
+<script>
+// กำหนดชื่อตั้งต้นเป็น เพลงที่ 1, 2... ชื่อจริงจะถูกดึงมาตอนเล่นอัตโนมัติ
+const SONGS = [
+  { id: '0Vsh5wqNKtg', emoji: '🎵', name: 'เพลงที่ 1' },
+  { id: 'xLzLnw7S05c', emoji: '🌟', name: 'เพลงที่ 2' },
+  { id: 'O7hFFxU56gE', emoji: '🐰', name: 'เพลงที่ 3' },
+  { id: '2ckUJZYg1Js', emoji: '🎪', name: 'เพลงที่ 4' },
+  { id: 'HXN2aQ1IZHQ', emoji: '🌈', name: 'เพลงที่ 5' },
+  { id: '1Mb92XPCGSo', emoji: '🎠', name: 'เพลงที่ 6' },
+  { id: 'YYJveqE92x8', emoji: '🦋', name: 'เพลงที่ 7' },
+  { id: 'fXF7l_RBqeE', emoji: '🎶', name: 'เพลงที่ 8' },
+  { id: 'ZcQa_AigIkY', emoji: '🌸', name: 'เพลงที่ 9' },
+  { id: 'f0j85R6b0a8', emoji: '🎀', name: 'เพลงที่ 10' },
+];
+
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+
+// Build song grid
+function buildGrid() {
+  const grid = document.getElementById('songs-grid');
+  grid.innerHTML = SONGS.map((s, i) => `
+    <div class="song-btn" id="song-${i}" onclick="playSong(${i})">
+      <div class="song-emoji">${s.emoji}</div>
+      <div class="song-name" id="name-${i}">${s.name}</div>
+      <div class="song-num">แทร็ก ${i + 1}</div>
+    </div>
+  `).join('');
+}
+
+// YouTube IFrame API
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1',
+    width: '1',
+    videoId: SONGS[0].id,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      disablekb: 1,
+      fs: 0,
+      iv_load_policy: 3,
+      modestbranding: 1,
+      rel: 0,
+    },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onStateChange,
+    }
+  });
+};
+
+function onPlayerReady(e) {
+  player.setVolume(80);
+}
+
+function onStateChange(e) {
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true);
+    // ดึงชื่อเพลงอัตโนมัติเมื่อเริ่มเล่นเพื่อป้องกันบั๊ก
+    const data = player.getVideoData();
+    if (data && data.title) {
+      document.getElementById('now-title').textContent = data.title;
+      if (currentIdx >= 0) {
+        SONGS[currentIdx].name = data.title;
+        const el = document.getElementById('name-' + currentIdx);
+        if (el) el.textContent = data.title;
+      }
+    }
+    startProgress();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false);
+    stopProgress();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false);
+    stopProgress();
+    nextSong();
+  } else if (e.data === YT.PlayerState.BUFFERING) {
+    document.getElementById('now-status').textContent = 'กำลังโหลด...';
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  document.querySelectorAll('.song-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('song-' + idx).classList.add('active');
+  currentIdx = idx;
+  document.getElementById('album-art').textContent = SONGS[idx].emoji;
+  document.getElementById('now-title').textContent = SONGS[idx].name;
+  document.getElementById('now-status').textContent = 'กำลังโหลด...';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+  } else {
+    player.playVideo();
+  }
+}
+
+function nextSong() {
+  if (SONGS.length === 0) return;
+  const next = (currentIdx + 1) % SONGS.length;
+  playSong(next);
+}
+
+function prevSong() {
+  if (SONGS.length === 0) return;
+  const prev = (currentIdx - 1 + SONGS.length) % SONGS.length;
+  playSong(prev);
+}
+
+function setVolume(val) {
+  document.getElementById('vol-val').textContent = val;
+  if (player && player.setVolume) player.setVolume(parseInt(val));
+}
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+  const art = document.getElementById('album-art');
+  if (playing) {
+    art.classList.add('spinning');
+    document.getElementById('now-status').textContent = 'กำลังเล่น ♪';
+  } else {
+    art.classList.remove('spinning');
+    if (document.getElementById('now-status').textContent !== 'กำลังโหลด...')
+      document.getElementById('now-status').textContent = 'หยุดชั่วคราว';
+  }
+}
+
+function startProgress() {
+  stopProgress();
+  progressTimer = setInterval(updateProgress, 500);
+}
+
+function stopProgress() {
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+}
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0;
+  const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const bar = e.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(pct * dur, true);
+}
+
+buildGrid();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+ขึ้นว่ากำลังโหลด แต่ไม่มีเพลงขึ้น ติดปัญหาตรงไหน url youtube ยังมามั้ย
+
+อาการที่กดแล้วค้างอยู่ที่ "กำลังโหลด..." (ไม่มีเสียง ไม่มีเวลาเดิน) ส่วนใหญ่ปัญหาไม่ได้อยู่ที่โค้ดครับ แต่มาจาก ข้อจำกัดของวิดีโอ YouTube ที่เรานำมาใส่ โดยมีสาเหตุดังนี้ครับ:
+
+1. วิดีโอติดลิขสิทธิ์ / เป็นหมวดหมู่เด็ก (Made for Kids) 🚨
+เพลงที่คุณนำมาใส่ (เช่น เบบี้ชาร์ค, ลิตเติ้ลแองเจิ้ล ฯลฯ) ช่องใหญ่ๆ เหล่านี้มักจะ ปิดการอนุญาตให้ฝังวิดีโอ (Disable Embedding) บนเว็บไซต์อื่นเพื่อป้องกันการละเมิดลิขสิทธิ์และทำตามกฎหมายเนื้อหาเด็กครับ
+
+สิ่งที่เกิดขึ้นคือ YouTube API โหลดมาแล้ว แต่พอสั่งกดเล่น YouTube จะส่ง Error กลับมา (เบื้องหลัง) ว่า "ไม่อนุญาตให้เล่น" แต่เนื่องจากแอปของเราซ่อนตัววิดีโอ YouTube ไว้ (ขนาด 1x1 pixel) เราเลยมองไม่เห็นหน้าจอแจ้งเตือน Error ของ YouTube ครับ
+
+2. เปิดไฟล์จากเครื่องคอมพิวเตอร์โดยตรง (file:///)
+หากคุณดับเบิ้ลคลิกไฟล์ .html ขึ้นมาเปิดตรงๆ โดยไม่ได้รันผ่านระบบ Server หรือ Hosting บางครั้ง YouTube จะบล็อกการเล่นเพลงผ่าน API ทันทีเพราะมองว่าไม่ใช่เว็บไซต์ที่ปลอดภัยครับ
+
+🛠️ วิธีแก้ไขและทดสอบ
+ขั้นตอนที่ 1: เพิ่มระบบแจ้งเตือน Error
+เราสามารถเพิ่มโค้ดให้แอปมัน "บอกเรา" ได้ว่าเพลงนั้นเล่นไม่ได้เพราะอะไร โดยเพิ่มโค้ดตรวจจับ Error เข้าไปครับ ให้คุณนำโค้ดด้านล่างนี้ไป แทนที่ส่วนของ <script> ทั้งหมดในไฟล์เดิม (ผมได้เพิ่มระบบแจ้งเตือน Error สีแดงไว้ให้แล้ว):
+
+HTML
+<script>
+const SONGS = [
+  // ทดสอบด้วยเพลงที่ไม่มีลิขสิทธิ์การฝัง (NCS) 3 เพลงแรกก่อน
+  { id: 'K4DyBUG242c', emoji: '🎵', name: 'เพลงทดสอบ 1 (เล่นได้ชัวร์)' },
+  { id: 'jfKfPfyJRdk', emoji: '🌟', name: 'เพลงทดสอบ 2 (Lofi)' },
+  // เพลงเดิมของคุณ (อาจจะติดลิขสิทธิ์)
+  { id: '0Vsh5wqNKtg', emoji: '🦈', name: 'เบบี้ชาร์ค (อาจเล่นไม่ได้)' },
+  { id: 'xLzLnw7S05c', emoji: '🌊', name: 'สำรวจทะเล (อาจเล่นไม่ได้)' },
+  { id: 'O7hFFxU56gE', emoji: '🐰', name: 'เพลงที่ 5' },
+  { id: '2ckUJZYg1Js', emoji: '🎪', name: 'เพลงที่ 6' },
+  { id: 'HXN2aQ1IZHQ', emoji: '🌈', name: 'เพลงที่ 7' },
+  { id: '1Mb92XPCGSo', emoji: '🎠', name: 'เพลงที่ 8' },
+  { id: 'YYJveqE92x8', emoji: '🦋', name: 'เพลงที่ 9' },
+  { id: 'fXF7l_RBqeE', emoji: '🎶', name: 'เพลงที่ 10' },
+];
+
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+
+function buildGrid() {
+  const grid = document.getElementById('songs-grid');
+  grid.innerHTML = SONGS.map((s, i) => `
+    <div class="song-btn" id="song-${i}" onclick="playSong(${i})">
+      <div class="song-emoji">${s.emoji}</div>
+      <div class="song-name" id="name-${i}">${s.name}</div>
+      <div class="song-num">แทร็ก ${i + 1}</div>
+    </div>
+  `).join('');
+}
+
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1',
+    width: '1',
+    videoId: SONGS[0].id,
+    playerVars: {
+      autoplay: 0,
+      controls: 0,
+      disablekb: 1,
+      fs: 0,
+      iv_load_policy: 3,
+      modestbranding: 1,
+      rel: 0,
+    },
+    events: {
+      onReady: onPlayerReady,
+      onStateChange: onStateChange,
+      onError: onPlayerError // เพิ่มตัวจับ Error
+    }
+  });
+};
+
+function onPlayerReady(e) {
+  player.setVolume(80);
+}
+
+// ฟังก์ชันใหม่: จัดการเมื่อ YouTube ไม่ยอมให้เล่น
+function onPlayerError(e) {
+  let errorMsg = "เกิดข้อผิดพลาดในการโหลด";
+  if (e.data === 101 || e.data === 150) {
+    errorMsg = "ลิขสิทธิ์ไม่อนุญาตให้เล่นนอกเว็บ";
+  } else if (e.data === 100) {
+    errorMsg = "วิดีโอนี้ถูกลบไปแล้ว";
+  }
+  
+  const statusEl = document.getElementById('now-status');
+  statusEl.textContent = errorMsg;
+  statusEl.style.color = '#ff0000'; // เปลี่ยนเป็นสีแดงเตือน
+  statusEl.style.fontWeight = 'bold';
+  
+  setPlayingState(false);
+  stopProgress();
+}
+
+function onStateChange(e) {
+  const statusEl = document.getElementById('now-status');
+  statusEl.style.color = '#E8906A'; // รีเซ็ตสีกลับเป็นปกติ
+  statusEl.style.fontWeight = 'normal';
+
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true);
+    const data = player.getVideoData();
+    if (data && data.title) {
+      document.getElementById('now-title').textContent = data.title;
+      if (currentIdx >= 0) {
+        SONGS[currentIdx].name = data.title;
+        const el = document.getElementById('name-' + currentIdx);
+        if (el) el.textContent = data.title;
+      }
+    }
+    startProgress();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false);
+    stopProgress();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false);
+    stopProgress();
+    nextSong();
+  } else if (e.data === YT.PlayerState.BUFFERING) {
+    statusEl.textContent = 'กำลังโหลด...';
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  document.querySelectorAll('.song-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('song-' + idx).classList.add('active');
+  currentIdx = idx;
+  document.getElementById('album-art').textContent = SONGS[idx].emoji;
+  document.getElementById('now-title').textContent = SONGS[idx].name;
+  
+  const statusEl = document.getElementById('now-status');
+  statusEl.textContent = 'กำลังโหลด...';
+  statusEl.style.color = '#E8906A';
+  statusEl.style.fontWeight = 'normal';
+  
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) {
+    player.pauseVideo();
+  } else {
+    player.playVideo();
+  }
+}
+
+function nextSong() {
+  if (SONGS.length === 0) return;
+  const next = (currentIdx + 1) % SONGS.length;
+  playSong(next);
+}
+
+function prevSong() {
+  if (SONGS.length === 0) return;
+  const prev = (currentIdx - 1 + SONGS.length) % SONGS.length;
+  playSong(prev);
+}
+
+function setVolume(val) {
+  document.getElementById('vol-val').textContent = val;
+  if (player && player.setVolume) player.setVolume(parseInt(val));
+}
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+  const art = document.getElementById('album-art');
+  if (playing) {
+    art.classList.add('spinning');
+    document.getElementById('now-status').textContent = 'กำลังเล่น ♪';
+  } else {
+    art.classList.remove('spinning');
+    const currStatus = document.getElementById('now-status').textContent;
+    if (!currStatus.includes('ไม่อนุญาต') && !currStatus.includes('ข้อผิดพลาด')) {
+      document.getElementById('now-status').textContent = 'หยุดชั่วคราว';
+    }
+  }
+}
+
+function startProgress() {
+  stopProgress();
+  progressTimer = setInterval(updateProgress, 500);
+}
+
+function stopProgress() {
+  if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+}
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0;
+  const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const bar = e.currentTarget;
+  const rect = bar.getBoundingClientRect();
+  const pct = (e.clientX - rect.left) / rect.width;
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(pct * dur, true);
+}
+
+buildGrid();
+</script>
+สิ่งที่เกิดขึ้นหลังจากอัปเดตโค้ด:
+ให้ลองคลิก "เพลงทดสอบ 1" หรือ "เพลงทดสอบ 2" ที่ผมใส่เผื่อไว้ให้ครับ เพลงเหล่านั้นเปิดให้เล่นฟรีไม่มีปิดกั้น ถ้า 2 เพลงนี้เล่นได้เสียงออกปกติ แสดงว่าระบบของคุณทำงาน 100% แล้วครับ
+
+แต่ถ้าไปกดเพลงที่ 3-10 แล้วขึ้น ตัวหนังสือสีแดงเตือน แปลว่าเพลงที่คุณหามานั้น "เขาไม่อนุญาตให้เล่นนอกเว็บยูทูป" ครับ คุณจำเป็นต้องหา URL ID (รหัสหลัง v=) ของวิดีโอช่องอื่นๆ ที่เจ้าของไม่ได้ตั้งค่าปิดกั้น (หมวดหมู่เพลง Cover หรืองานรีมิกซ์ทั่วไปมักจะใช้ได้ครับ)
+
+ได้ผลยังไงมาบอกกันได้เลยนะครับ!
+
+เปิดใน chrome บน วินโดว แล้วไม่ขึ้นอะไรเลย
+
+อาการ "ไม่ขึ้นอะไรเลย" (ถ้าหมายถึงหน้าจอขาวโพลน หรือไม่มีหน้าตาแอปพลิเคชันโผล่มาเลย) มักจะเกิดจากปัญหาตอนเซฟไฟล์หรือข้อจำกัดของเบราว์เซอร์ครับ เรามาไล่เช็คกันดูทีละจุดนะครับ
+
+1. ปัญหาจากการเปิดไฟล์ตรงๆ จากคอมพิวเตอร์ (file:///) 🚨
+นี่คือสาเหตุยอดฮิตที่สุดครับ! การดับเบิ้ลคลิกไฟล์ .html ขึ้นมาเปิดบน Chrome โดยตรง แถบ URL จะขึ้นต้นด้วย file:///C:/... ซึ่ง Chrome จะมีระบบรักษาความปลอดภัยที่ บล็อกการดึงข้อมูลจาก YouTube API ทำให้สคริปต์หยุดทำงานและหน้าเว็บอาจจะค้างหรือขาวไปเลย
+
+วิธีแก้ที่ง่ายที่สุด (เพื่อทดสอบ): แนะนำให้ลองก๊อปปี้โค้ดทั้งหมด ไปวางทดสอบในเว็บสำหรับเขียนโค้ดออนไลน์ฟรี เช่น CodePen.io (เอาโค้ดไปวางในช่อง HTML) ถ้าวางแล้วแอปแสดงผลและเล่นเพลงได้ปกติ แปลว่าเป็นปัญหาที่ระบบบล็อกไฟล์บนเครื่องคอมพิวเตอร์ครับ
+
+วิธีแก้ถ้าอยากเปิดบนคอม: ต้องรันผ่านจำลองเซิร์ฟเวอร์ (Local Web Server) เช่น ใช้โปรแกรม VS Code แล้วลง Extension ชื่อ Live Server ครับ
+
+2. นามสกุลไฟล์ หรือการเซฟไฟล์ผิดพลาด
+บางครั้งตอนเราก๊อปปี้โค้ดไปเซฟ โปรแกรม (เช่น Notepad) อาจจะแอบเติม .txt ต่อท้าย หรือเซฟโค้ดไปไม่ครบ ทำให้เบราว์เซอร์อ่านไม่เข้าใจ
+
+วิธีเช็ค: ลองคลิกขวาที่ไฟล์ เลือก Open with > Notepad แล้วดูว่าโค้ดบรรทัดแรกสุดคือ <!DOCTYPE html> และบรรทัดสุดท้ายคือ </html> ไหม ถ้ามีโค้ดแหว่งไป ให้ก๊อปปี้ไปวางใหม่ครับ และตอนเซฟอย่าลืมเลือก Save as type เป็น All Files แล้วตั้งชื่อไฟล์ให้จบด้วย .html เสมอ
+
+3. ตัวบล็อกโฆษณา (Ad Blocker) สกัดกั้นสคริปต์
+หากใน Chrome มีการลง Extension บล็อกโฆษณา (เช่น Adblock Plus, uBlock) บางครั้งมันจะมองว่าระบบ YouTube ที่ดึงมาเป็นโฆษณาและบล็อกการทำงานทันที
+
+วิธีเช็ค: ลองเปิด Chrome ใน โหมดไม่ระบุตัวตน (Incognito Mode) โดยกด Ctrl + Shift + N แล้วลากไฟล์ .html ของคุณไปปล่อยในหน้าต่างนั้นดูครับว่าแอปขึ้นหรือไม่
+
+💡 เคล็ดลับการหาจุดแก้ (แอบดู Error)
+หากอยากรู้แน่ชัดว่า Chrome ฟ้องว่าอะไร ให้คุณเปิดหน้านั้นไว้แล้วกดปุ่ม F12 บนคีย์บอร์ด > เลือกแท็บ Console (คอนโซล) > ถ้ามีตัวหนังสือสีแดงๆ ขึ้นมา นั่นคือสาเหตุที่ทำให้แอปไม่ทำงานครับ
+
+เพื่อที่ผมจะได้ช่วยเจาะจงปัญหาได้แม่นยำขึ้น ตอนนี้หน้าจอที่คุณเห็นเป็นสีขาวโล่งๆ ไปเลย หรือว่ามีโครงสร้างสีส้มๆ โผล่มาแต่ไม่มีรายชื่อเพลงครับ?
+
+ขอบคุณสำหรับภาพหน้าจอครับ ชัดเจนเลย! ตอนนี้เราเจอสาเหตุหลัก 2 ข้อที่ทำให้หน้าจอขาวและแอปไม่ทำงานครับ
+
+🕵️‍♂️ วิเคราะห์ Error จากภาพ:
+Cannot set properties of null (setting 'innerHTML')
+
+สาเหตุ: Error นี้คือตัวที่ทำให้ "หน้าจอขาวโพลน" ครับ มันแปลว่าโค้ด JavaScript พยายามจะสร้างปุ่มเลือกเพลงลงในกรอบ (id="songs-grid") แต่มัน หากรอบนั้นไม่เจอ * ทำไมถึงเกิด: เป็นไปได้สูงมากว่าตอนที่คุณก๊อปปี้โค้ดไปวาง อาจจะเผลอลบส่วนที่เป็นโครงสร้าง HTML ด้านบนทิ้งไป (หรือวางผิดตำแหน่ง) ทำให้แอปเหลือแต่สคริปต์แต่ไม่มีหน้าตาแอปครับ
+
+Unsafe attempt to load URL file:///...
+
+สาเหตุ: อันนี้คือปัญหาจากการเปิดไฟล์ตรงๆ จากไดรฟ์ D:/ บนคอมพิวเตอร์ตามที่ผมคาดไว้ครับ
+
+ทำไมถึงเกิด: ระบบความปลอดภัยของ Chrome จะบล็อกไม่ให้ YouTube (ซึ่งเป็นเว็บภายนอก) ส่งข้อมูลกลับมาที่ไฟล์แบบออฟไลน์ (file:///) ทำให้เพลงไม่ยอมเล่นครับ
+
+🛠️ วิธีแก้ไขปัญหาแบบม้วนเดียวจบ
+เพื่อให้แน่ใจว่าโค้ดไม่แหว่ง ผมได้รวม HTML + หน้าตาแอป + ระบบแจ้งเตือน Error ไว้ให้เป็นไฟล์เดียวสมบูรณ์แล้วครับ ให้คุณ ลบโค้ดเก่าในไฟล์ทิ้งให้หมด แล้วก๊อปปี้โค้ดด้านล่างนี้ไปวางแทนทั้งหมดเลยครับ:
+
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="เพลงของเฌอ">
+<title>🎵 เพลงของเฌอ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Sarabun', sans-serif; background: #FFF5EC; min-height: 100vh; padding: 0; user-select: none; }
+  .app { max-width: 420px; margin: 0 auto; padding: 20px 16px 40px; min-height: 100vh; }
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .header-emoji { font-size: 28px; }
+  .header-title { font-size: 22px; font-weight: 800; color: #C45000; letter-spacing: -0.3px; }
+  .now-playing { background: #fff; border-radius: 24px; border: 1.5px solid #FFD8B8; padding: 24px 20px 20px; margin-bottom: 20px; text-align: center; box-shadow: 0 2px 12px rgba(200,80,0,0.06); }
+  .album-art { width: 90px; height: 90px; border-radius: 50%; background: #FFD8B8; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center; font-size: 44px; transition: transform 0.3s ease; position: relative; overflow: hidden; }
+  .album-art.spinning { animation: spin 4s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .now-title { font-size: 16px; font-weight: 700; color: #C45000; margin-bottom: 3px; min-height: 22px; line-height: 1.3; padding: 0 10px; }
+  .now-status { font-size: 13px; color: #E8906A; margin-bottom: 16px; min-height: 18px; }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .btn-ctrl { width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #FFD8B8; background: #FFF5EC; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; }
+  .btn-ctrl:active { transform: scale(0.92); background: #FFD8B8; }
+  .btn-ctrl svg { width: 20px; height: 20px; fill: #C45000; }
+  .btn-play-main { width: 64px; height: 64px; border-radius: 50%; background: #FF7A30; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s ease; box-shadow: 0 4px 14px rgba(255,122,48,0.35); }
+  .btn-play-main:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(255,122,48,0.3); }
+  .btn-play-main svg { width: 28px; height: 28px; fill: #fff; }
+  .progress-wrap { margin: 14px 0 0; display: flex; align-items: center; gap: 8px; }
+  .time-label { font-size: 12px; color: #E8906A; font-weight: 600; min-width: 36px; }
+  .time-label.right { text-align: right; }
+  .progress-bar { flex: 1; height: 5px; background: #FFD8B8; border-radius: 99px; overflow: hidden; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: #FF7A30; border-radius: 99px; width: 0%; transition: width 0.5s linear; }
+  .section-title { font-size: 12px; font-weight: 700; color: #C45000; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+  .songs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .song-btn { background: #fff; border: 1.5px solid #FFD8B8; border-radius: 18px; padding: 16px 10px 14px; text-align: center; cursor: pointer; transition: all 0.15s ease; position: relative; }
+  .song-btn:active { transform: scale(0.96); }
+  .song-btn.active { border: 2px solid #FF7A30; background: #FFF0E6; box-shadow: 0 2px 10px rgba(255,122,48,0.15); }
+  .song-btn.active::after { content: ''; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 50%; background: #FF7A30; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.7); } }
+  .song-emoji { font-size: 30px; margin-bottom: 8px; }
+  .song-name { font-size: 11.5px; font-weight: 700; color: #C45000; line-height: 1.35; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .song-num { font-size: 10px; color: #E8906A; margin-top: 2px; }
+  .vol-card { background: #fff; border: 1.5px solid #FFD8B8; border-radius: 18px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+  .vol-icon { font-size: 18px; }
+  .vol-label { font-size: 13px; font-weight: 700; color: #C45000; white-space: nowrap; }
+  input[type=range] { flex: 1; -webkit-appearance: none; height: 5px; border-radius: 99px; background: #FFD8B8; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #FF7A30; cursor: pointer; box-shadow: 0 1px 4px rgba(255,122,48,0.4); }
+  .vol-val { font-size: 13px; font-weight: 700; color: #C45000; min-width: 32px; text-align: right; }
+  #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="yt-player"></div>
+
+<div class="app">
+  <div class="header">
+    <span class="header-emoji">🎵</span>
+    <span class="header-title">เพลงของเฌอ</span>
+  </div>
+
+  <div class="now-playing">
+    <div class="album-art" id="album-art">🎶</div>
+    <div class="now-title" id="now-title">กดเพลงเพื่อเริ่มเล่น</div>
+    <div class="now-status" id="now-status">เลือกเพลงด้านล่างได้เลย</div>
+    <div class="controls">
+      <div class="btn-ctrl" id="btn-prev" onclick="prevSong()"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></div>
+      <div class="btn-play-main" id="btn-play" onclick="togglePlay()">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </div>
+      <div class="btn-ctrl" id="btn-next" onclick="nextSong()"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg></div>
+    </div>
+    <div class="progress-wrap">
+      <span class="time-label" id="time-cur">0:00</span>
+      <div class="progress-bar" onclick="seekTo(event)"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="time-label right" id="time-dur">0:00</span>
+    </div>
+  </div>
+
+  <div class="section-title">เลือกเพลง</div>
+  <div class="songs-grid" id="songs-grid"></div>
+
+  <div class="vol-card">
+    <span class="vol-icon">🔊</span>
+    <span class="vol-label">เสียง</span>
+    <input type="range" min="0" max="100" value="80" id="vol-slider" oninput="setVolume(this.value)">
+    <span class="vol-val" id="vol-val">80</span>
+  </div>
+</div>
+
+<script>
+const SONGS = [
+  { id: 'K4DyBUG242c', emoji: '🎵', name: 'เพลงทดสอบ 1 (ไม่มีลิขสิทธิ์)' },
+  { id: 'jfKfPfyJRdk', emoji: '🌟', name: 'เพลงทดสอบ 2' },
+  { id: '0Vsh5wqNKtg', emoji: '🦈', name: 'เบบี้ชาร์ค' },
+  { id: 'xLzLnw7S05c', emoji: '🌊', name: 'สำรวจทะเล' },
+  { id: 'O7hFFxU56gE', emoji: '🐰', name: 'เพลงที่ 5' },
+  { id: '2ckUJZYg1Js', emoji: '🎪', name: 'เพลงที่ 6' },
+  { id: 'HXN2aQ1IZHQ', emoji: '🌈', name: 'เพลงที่ 7' },
+  { id: '1Mb92XPCGSo', emoji: '🎠', name: 'เพลงที่ 8' },
+  { id: 'YYJveqE92x8', emoji: '🦋', name: 'เพลงที่ 9' },
+  { id: 'fXF7l_RBqeE', emoji: '🎶', name: 'เพลงที่ 10' },
+];
+
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+
+function buildGrid() {
+  const grid = document.getElementById('songs-grid');
+  grid.innerHTML = SONGS.map((s, i) => `
+    <div class="song-btn" id="song-${i}" onclick="playSong(${i})">
+      <div class="song-emoji">${s.emoji}</div>
+      <div class="song-name" id="name-${i}">${s.name}</div>
+      <div class="song-num">แทร็ก ${i + 1}</div>
+    </div>
+  `).join('');
+}
+
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1', width: '1', videoId: SONGS[0].id,
+    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
+    events: { onReady: onPlayerReady, onStateChange: onStateChange, onError: onPlayerError }
+  });
+};
+
+function onPlayerReady(e) { player.setVolume(80); }
+
+function onPlayerError(e) {
+  let errorMsg = "เกิดข้อผิดพลาด";
+  if (e.data === 101 || e.data === 150) errorMsg = "ลิขสิทธิ์ไม่อนุญาตให้เล่นนอกเว็บ";
+  else if (e.data === 100) errorMsg = "วิดีโอนี้ถูกลบไปแล้ว";
+  
+  const statusEl = document.getElementById('now-status');
+  statusEl.textContent = errorMsg;
+  statusEl.style.color = '#ff0000';
+  statusEl.style.fontWeight = 'bold';
+  setPlayingState(false); stopProgress();
+}
+
+function onStateChange(e) {
+  const statusEl = document.getElementById('now-status');
+  statusEl.style.color = '#E8906A';
+  statusEl.style.fontWeight = 'normal';
+
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true);
+    const data = player.getVideoData();
+    if (data && data.title) {
+      document.getElementById('now-title').textContent = data.title;
+      if (currentIdx >= 0) {
+        SONGS[currentIdx].name = data.title;
+        const el = document.getElementById('name-' + currentIdx);
+        if (el) el.textContent = data.title;
+      }
+    }
+    startProgress();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false); stopProgress();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false); stopProgress(); nextSong();
+  } else if (e.data === YT.PlayerState.BUFFERING) {
+    statusEl.textContent = 'กำลังโหลด...';
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  document.querySelectorAll('.song-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('song-' + idx).classList.add('active');
+  currentIdx = idx;
+  document.getElementById('album-art').textContent = SONGS[idx].emoji;
+  document.getElementById('now-title').textContent = SONGS[idx].name;
+  
+  const statusEl = document.getElementById('now-status');
+  statusEl.textContent = 'กำลังโหลด...';
+  statusEl.style.color = '#E8906A';
+  statusEl.style.fontWeight = 'normal';
+  
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+  else player.playVideo();
+}
+
+function nextSong() { if (SONGS.length > 0) playSong((currentIdx + 1) % SONGS.length); }
+function prevSong() { if (SONGS.length > 0) playSong((currentIdx - 1 + SONGS.length) % SONGS.length); }
+function setVolume(val) { document.getElementById('vol-val').textContent = val; if (player && player.setVolume) player.setVolume(parseInt(val)); }
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+  const art = document.getElementById('album-art');
+  if (playing) {
+    art.classList.add('spinning');
+    document.getElementById('now-status').textContent = 'กำลังเล่น ♪';
+  } else {
+    art.classList.remove('spinning');
+    const currStatus = document.getElementById('now-status').textContent;
+    if (!currStatus.includes('ไม่อนุญาต') && !currStatus.includes('ข้อผิดพลาด')) {
+      document.getElementById('now-status').textContent = 'หยุดชั่วคราว';
+    }
+  }
+}
+
+function startProgress() { stopProgress(); progressTimer = setInterval(updateProgress, 500); }
+function stopProgress() { if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0; const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
+}
+
+buildGrid();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+🚀 วิธีทดสอบเพื่อหลีกเลี่ยง Error การเปิดไฟล์ตรงๆ
+เนื่องจากการเปิดในคอมพิวเตอร์ติดปัญหา file:/// ผมแนะนำให้ใช้วิธีทดสอบแบบออนไลน์ที่ง่ายที่สุดตามขั้นตอนนี้ครับ:
+
+เข้าเว็บไซต์ CodePen.io/pen (ใช้ฟรี ไม่ต้องสมัครสมาชิก)
+
+ก๊อปปี้โค้ดทั้งหมดด้านบน ไปวางในช่องที่เขียนว่า HTML
+
+รอสัก 2-3 วินาที หน้าตาแอปจะปรากฏขึ้นที่หน้าจอด้านล่าง
+
+ลองกดเล่น เพลงทดสอบ 1 หรือ 2 ดูครับ!
+
+ถ้าบน CodePen เล่นเพลงได้ปกติ แสดงว่าโค้ดสมบูรณ์ 100% แล้วครับ คุณสามารถนำไฟล์นี้ไปอัปโหลดขึ้น Web Hosting จริงๆ (เช่น GitHub Pages, Vercel หรือเซิร์ฟเวอร์ของคุณ) เพื่อใช้งานจริงได้เลยครับ
+
+ลองรันบน CodePen แล้วได้ยินเสียงเพลงทดสอบขึ้นไหมครับ?
+
+หน้าตาแอปพลิเคชันขึ้นมาสมบูรณ์แบบแล้วครับ เยี่ยมเลย! 🎉
+
+จากภาพคอนโซลที่คุณส่งมา อาการนี้ชัดเจน 100% เลยครับ ปัญหาไม่ได้อยู่ที่ตัวโค้ดแล้ว แต่เป็นเพราะ Chrome บล็อกการทำงานของ YouTube API เมื่อเราเปิดไฟล์ตรงๆ จากไดรฟ์ในเครื่อง (สังเกตจากคำว่า file:///) ระบบรักษาความปลอดภัยของ Chrome จะมองว่าไฟล์ที่เปิดแบบออฟไลน์ไม่มี "ที่อยู่เว็บ (Origin)" ที่ชัดเจน จึงไม่ยอมให้สคริปต์ในเครื่องของเราคุยกับระบบของ YouTube ได้ครับ (วิดีโอเลยโดนตัดจบและขึ้นว่าเกิดข้อผิดพลาดทันที)
+
+วิธีทำให้เพลงดังขึ้นมาได้ คุณต้องจำลองให้ไฟล์นี้รันอยู่บนเซิร์ฟเวอร์จำลอง (Local Server) หรือเอาขึ้นเว็บจริงครับ ผมแนะนำ 2 วิธีที่ง่ายที่สุดดังนี้ครับ:
+
+วิธีที่ 1: รันผ่าน CodePen (ง่ายและเร็วที่สุด ภายใน 1 นาที)
+ถ้าแค่ต้องการทดสอบว่าโค้ดทำงานและเสียงออกปกติไหม ให้ใช้วิธีนี้ครับ:
+
+เปิดเบราว์เซอร์ไปที่เว็บ: https://codepen.io/pen/
+
+นำโค้ดทั้งหมดที่คุณมี ไปวางในช่องที่เขียนว่า HTML
+
+รอสัก 2 วินาที แอปจะโผล่ขึ้นมาด้านล่าง
+
+ลองกดเล่นเพลงดูครับ คราวนี้เสียงจะมาปกติแน่นอน เพราะ CodePen เป็นระบบเว็บเซิร์ฟเวอร์จำลองให้เรียบร้อยแล้ว
+
+วิธีที่ 2: จำลองเซิร์ฟเวอร์ในคอมพิวเตอร์ของคุณเอง
+ถ้าคุณต้องการเปิดเล่นไฟล์นี้จากในเครื่องคอมพิวเตอร์ของคุณเองตลอดไป คุณไม่สามารถดับเบิ้ลคลิกไฟล์ .html ตรงๆ ได้อีกแล้ว ต้องใช้ตัวช่วยครับ:
+
+ถ้าคุณใช้โปรแกรม VS Code เขียนโค้ด: ให้ไปที่เมนู Extensions (ส่วนเสริม) ค้นหาและติดตั้งตัวที่ชื่อว่า Live Server > จากนั้นเปิดไฟล์ HTML ของคุณขึ้นมา > คลิกขวาที่หน้าโค้ด > เลือก Open with Live Server (หน้าเว็บจะเด้งขึ้นมาในเบราว์เซอร์ โดยมี URL เป็น http://127.0.0.1... แทนที่จะเป็น file:/// และเพลงจะเล่นได้ครับ)
+
+ถ้าไม่ได้ใช้ VS Code:
+แนะนำให้โหลดส่วนเสริม (Extension) ของ Google Chrome ที่ชื่อว่า Web Server for Chrome หรือถ้าในคอมพิวเตอร์มี Python ติดตั้งอยู่ สามารถเปิด Command Prompt ไปที่โฟลเดอร์ที่เก็บไฟล์แล้วพิมพ์คำสั่ง python -m http.server จากนั้นเข้าเบราว์เซอร์พิมพ์ http://localhost:8000 ครับ
+
+ลองใช้วิธีที่ 1 (CodePen) ดูก่อนก็ได้ครับ จะได้มั่นใจว่าโค้ดแอป "เพลงของเฌอ" พร้อมใช้งานเต็ม 100% แล้ว!
+
+แอพแบบนี้ เอาคลิป youtube มาเป็นเพลง มีปัญหาเรื่องลิขสิทธิ์มั้ย
+
+เป็นคำถามที่ดีและสำคัญมากครับสำหรับการพัฒนาแอปพลิเคชัน! สรุปให้เข้าใจง่ายๆ คือ "ถ้าทำไว้ใช้เองส่วนตัวให้เด็กๆ ฟังในบ้าน ไม่มีปัญหาครับ แต่ถ้าจะเอาแอปนี้ไปปล่อยโหลดสาธารณะหรือทำขาย จะผิดกฎทันที" เรามาดูรายละเอียดกันทีละเรื่องเพื่อให้เห็นภาพชัดเจนขึ้นนะครับ:
+
+1. ปัญหาเรื่อง "ลิขสิทธิ์" (Copyright) 🎵
+ในแง่ของกฎหมายลิขสิทธิ์ การดึง YouTube มาเปิดในเว็บของเราด้วยวิธีนี้ (การ Embed หรือฝังคลิป) ไม่ถือเป็นการละเมิดลิขสิทธิ์โดยตรงครับ เพราะ:
+
+เราไม่ได้ "ดาวน์โหลด" ไฟล์เพลงของเขามาเก็บไว้ที่เครื่องหรือเซิร์ฟเวอร์ของเรา
+
+เราเป็นแค่ "หน้าต่าง" ที่เปิดให้คลิปต้นฉบับจาก YouTube มาเล่นบนแอปของเรา ยอดวิวต่างๆ ก็ยังคงวิ่งไปหาเจ้าของคลิปปกติครับ
+
+หากเจ้าของลิขสิทธิ์ไม่ต้องการให้ใครดึงคลิปไปเล่นนอกเว็บ YouTube เขาจะมีสิทธิ์ตั้งค่า "ปิดการฝัง (Disable Embedding)" ไว้ตั้งแต่ตอนอัปโหลดคลิป (ซึ่งนี่คือสาเหตุที่บางเพลงกดแล้วขึ้น Error อย่างที่เราเจอกันไปครับ)
+
+2. ปัญหาเรื่อง "กฎการใช้งานของ YouTube" (Terms of Service) 🚨
+แม้จะไม่ละเมิดลิขสิทธิ์ แต่แอปของเรา "ทำผิดข้อตกลงการใช้งาน (ToS)" ของ YouTube API ครับ:
+
+ห้ามแยกเสียงออกจากภาพ: กฎของ YouTube ระบุชัดเจนว่า ห้ามทำแอปที่ซ่อนหน้าจอวิดีโอแล้วดึงมาแต่เสียงเพื่อทำเป็น Music Player (ในโค้ดของเรา เราแอบย่อหน้าจอ YouTube ให้เหลือขนาดเล็กจิ๋วแค่ 1x1 พิกเซล เพื่อซ่อนไว้)
+
+การเล่นพื้นหลัง (Background Playback): YouTube ไม่อนุญาตให้นำ API ไปสร้างแอปเล่นเพลงที่ปิดหน้าจอแล้วเสียงยังออก เพราะการทำแบบนั้นคือฟีเจอร์ของ YouTube Premium ครับ
+
+💡 คำแนะนำสำหรับการใช้งานแอป "เพลงของเฌอ"
+✅ ถ้าทำไว้ใช้ส่วนตัว / ให้คนในครอบครัวใช้: ทำได้สบายใจเลยครับ! ไม่มีใครมาฟ้องร้องแน่นอน อย่างมากที่สุดถ้า YouTube ตรวจจับได้ว่าเราซ่อนวิดีโอ เพลงนั้นก็แค่จะเล่นไม่ออกหรือถูกบล็อกไปเงียบๆ ครับ
+
+❌ ถ้าจะทำเป็นแอปจริงๆ ลง App Store (iOS) หรือ Play Store (Android): ไม่สามารถทำได้ครับ ระบบตรวจสอบของ Apple และ Google จะทำการ Reject (ปฏิเสธ) ไม่ให้แอปของคุณขึ้นสโตร์ทันที เพราะถือว่าแอปละเมิดข้อตกลงการใช้งานของ YouTube ครับ
+
+แอปนี้เหมาะมากๆ สำหรับใช้เป็นโปรเจกต์ส่วนตัว เอาไว้เปิดให้เด็กๆ ฟังผ่านเบราว์เซอร์หรือ iPad ในบ้านแบบน่ารักๆ ไม่มีปัญหาแน่นอนครับ!
+
+มันต้องรัน บน internet ผ่าน github page ซึ่งใครๆ ก็เข้าถึงได้ ถ้ามี url แบบนี้ล่ะผิดมั้ย
+
+เข้าใจความกังวลเลยครับ พอเรานำโค้ดไปฝากไว้บน GitHub Pages มันจะกลายเป็นเว็บไซต์ที่ออนไลน์บนอินเทอร์เน็ตจริงๆ (มี URL เป็น https://ชื่อของคุณ.github.io/...) ซึ่งคนอื่นสามารถเข้าถึงได้ถ้าเขามีลิงก์
+
+ถ้าถามว่า "ผิดไหม?" ต้องขอแยกตอบเป็น 2 ประเด็น เพื่อให้เห็นภาพชัดเจนที่สุดครับ:
+
+1. ผิด "กฎหมายลิขสิทธิ์" ไหม? (เรื่องตำรวจ/การฟ้องร้อง) ⚖️
+คำตอบคือ: ไม่ผิดครับ ตราบใดที่คุณใช้ระบบ Iframe API ของ YouTube ดึงวิดีโอมาแสดง (ไม่ได้ใช้โปรแกรมไปดูดไฟล์ MP4 หรือ MP3 ของเขามาอัปโหลดใส่ GitHub ของตัวเอง) ในทางกฎหมายถือว่าการทำแบบนี้คือการ "Embed" (ฝังลิงก์) ซึ่งยอดวิวจะยังคงวิ่งกลับไปหาเจ้าของคลิปบน YouTube ตามปกติ คุณจึงไม่ต้องกังวลเรื่องการโดนฟ้องร้องลิขสิทธิ์จากการทำหน้าเว็บแบบนี้ครับ
+
+2. ผิด "กฎการใช้งานของ YouTube" (Terms of Service) ไหม? 📜
+คำตอบคือ: ผิดกฎของ YouTube ครับ
+อย่างที่แจ้งไปก่อนหน้านี้ การที่เราเขียนโค้ดซ่อนหน้าจอวิดีโอให้เหลือขนาดจิ๋ว 1x1 พิกเซล เพื่อทำตัวเป็นแอปฟังเพลง (Music Player) ถือว่าผิดข้อตกลงการใช้งาน API ของนักพัฒนาครับ เพราะ YouTube ต้องการให้คน "ดูโฆษณา" และ "เห็นภาพวิดีโอ"
+
+แล้วถ้าเอาขึ้น GitHub Pages จะเกิดอะไรขึ้นในชีวิตจริง?
+นี่คือสิ่งที่จะเกิดขึ้นในทางปฏิบัติครับ:
+
+ความเสี่ยงต่ำมาก: ถ้า URL นี้คุณสร้างขึ้นมาแล้วส่งให้แค่คนในบ้าน หรือให้แค่น้องเฌอกดฟัง ทราฟฟิก (จำนวนคนเข้าเว็บ) จะน้อยมากๆ ระบบของ YouTube หรือเจ้าของลิขสิทธิ์จะไม่ได้ให้ความสนใจเลยครับ คุณสามารถใช้งานได้ปกติสุข
+
+บทลงโทษที่แย่ที่สุด: สมมติว่ามีคนเอา URL ของคุณไปแชร์ต่อในกลุ่ม Facebook แล้วมีคนเข้าใช้งานวันละหลายหมื่นคน... สิ่งที่แย่ที่สุดที่จะเกิดขึ้นคือ YouTube จะบล็อกไม่ให้วิดีโอเล่นผ่าน URL ของคุณครับ (แอปจะกดเล่นไม่ได้แค่นั้นเอง) และ GitHub อาจจะระงับหน้าเพจนั้นของคุณ ไม่มีใครส่งทนายมาฟ้องร้องแน่นอนครับ
+
+💡 สรุปคำแนะนำ:
+คุณสามารถนำขึ้น GitHub Pages เพื่อให้ใช้งานสะดวกๆ ผ่านมือถือหรือแท็บเล็ตได้เลยครับ ถือเป็นโปรเจกต์ส่วนตัวที่น่ารักมากๆ ขอแค่ทำตามคำแนะนำ 2 ข้อนี้ครับ:
+
+อย่าติดป้ายโฆษณา (AdSense) บนหน้าเว็บนี้ เพื่อหารายได้เข้าตัวเองเด็ดขาด
+
+เก็บ URL ไว้ใช้กันเองในครอบครัว ไม่นำไปโปรโมทแจกจ่ายสาธารณะ
+
+ทำตามนี้รับรองว่าปลอดภัย ใช้งาน "เพลงของเฌอ" ได้ยาวๆ สบายใจแน่นอนครับ!
+
+โปรเจคนี้ ใช้แค่ github page พอมั้ย หรือต้องใช้ vercel ด้วย
+
+สำหรับโปรเจกต์ "เพลงของเฌอ" นี้ ใช้แค่ GitHub Pages อย่างเดียวก็เพียงพอแล้วครับ 100% เลย ไม่จำเป็นต้องใช้ Vercel ครับ
+
+เพื่อให้เห็นภาพชัดเจนว่าทำไมใช้แค่ GitHub Pages ก็พอ ผมขอสรุปความแตกต่างให้ฟังแบบเข้าใจง่ายๆ ครับ:
+
+🌟 ทำไม GitHub Pages ถึงพอแล้ว?
+แอปที่คุณเขียนขึ้นมานี้จัดอยู่ในประเภท Static Website (เว็บไซต์แบบคงที่) ซึ่งประกอบไปด้วยโค้ดพื้นฐานแค่ 3 อย่างคือ HTML, CSS และ JavaScript ล้วนๆ
+
+โค้ดทั้งหมดทำงานอยู่บน "เบราว์เซอร์ของคนเปิด" (Client-side)
+
+ไม่มีการเก็บข้อมูลลงฐานข้อมูล (Database)
+
+ไม่มีการคำนวณซับซ้อนที่ต้องใช้เซิร์ฟเวอร์หลังบ้าน (Backend)
+ซึ่ง GitHub Pages ถูกสร้างมาเพื่อให้บริการโฮสต์ไฟล์ Static Website แบบนี้โดยเฉพาะเลยครับ ฟรี เสถียร และใช้งานได้ตลอดไป
+
+🚀 แล้ว Vercel เหมาะกับงานแบบไหน?
+Vercel ก็เป็นโฮสติ้งฟรีที่ดีมากๆ เหมือนกันครับ แต่เขามักจะถูกนำมาใช้กับโปรเจกต์ที่ "ใหญ่และซับซ้อนขึ้น" เช่น:
+
+เขียนเว็บด้วยเฟรมเวิร์กสมัยใหม่ (เช่น React, Next.js, Vue)
+
+เว็บที่ต้องมีการต่อฐานข้อมูล หรือมีระบบหลังบ้าน (API / Serverless Functions)
+
+เว็บที่ต้องการระบบช่วยประมวลผลโค้ด (Build process) ก่อนเอาขึ้นจริง
+
+สรุปคือ: ถ้าคุณเอาโค้ดไฟล์ .html นี้ไปอัปโหลดขึ้น Vercel มันก็ทำงานได้เหมือนกันครับ (ง่ายพอๆ กันด้วย) แต่ในเมื่อโปรเจกต์เราเป็นไฟล์ HTML ง่ายๆ ตัวเดียว การนำไปฝากไว้บน GitHub Pages ถือว่าเป็นวิธีที่ตรงจุดและเรียบง่ายที่สุดแล้วครับ ไม่ต้องไปตั้งค่าอะไรให้วุ่นวายเลย
+
+ลุยอัปโหลดขึ้น GitHub Pages แล้วส่งลิงก์ให้น้องเฌอฟังได้เลยครับ! แนะนำอะไรเพิ่มเติมเกี่ยวกับการเอาขึ้น GitHub ถามได้ตลอดนะครับ
+
+ถ้าเล่น เพลงจาก youtube แต่มีการ catch บางเพลงที่เลือก เพื่อเล่น offline หรือไม่ต้องโหลดซ้ำ
+
+เป็นไอเดียที่ยอดเยี่ยมมากครับสำหรับการทำแอปให้เด็กๆ เพราะจะได้ไม่ต้องพึ่งอินเทอร์เน็ตตลอดเวลา แถมยังแก้ปัญหาเรื่องเพลงโหลดช้าหรือสะดุดได้ด้วย
+
+แต่ถ้าจะทำโดยใช้ระบบ YouTube IFrame API (แบบที่เราใช้อยู่ตอนนี้) คำตอบคือ "ไม่สามารถทำได้ครับ" สาเหตุที่เป็นแบบนั้น มี 2 เรื่องหลักๆ ครับ:
+
+1. ข้อจำกัดทางเทคนิค (Technical Limitations) 🛑
+การดึงเพลงผ่าน YouTube API เป็นการทำ "สตรีมมิ่ง (Streaming)" ล้วนๆ ครับ ระบบของ YouTube จะส่งข้อมูลมาทีละชิ้นส่วนและไม่อนุญาตให้เบราว์เซอร์เข้าถึง "ไฟล์วิดีโอ/เสียงแบบเต็มๆ (ไฟล์ MP4 หรือ MP3)" ได้เลย เมื่อเราไม่สามารถจับตัวไฟล์ดิบได้ เราจึงไม่สามารถเขียนคำสั่ง JavaScript (เช่น Service Worker หรือ Cache API) เพื่อสั่งให้เบราว์เซอร์จำเพลงนั้นไว้เล่นแบบ Offline ได้ครับ
+
+2. กฎเกณฑ์ของ YouTube (Terms of Service) 📜
+YouTube ห้ามไม่ให้นักพัฒนาสร้างแอปพลิเคชันที่ทำการ "ดาวน์โหลด" หรือ "แคช (Cache) เพื่อเล่นออฟไลน์" เด็ดขาดครับ เพราะฟีเจอร์การฟังเพลงออฟไลน์ เป็นสิ่งที่ YouTube สงวนไว้ขายในแพ็กเกจ YouTube Premium เท่านั้นครับ
+
+💡 ทางออก: ถ้าอยากได้แอป "เพลงของเฌอ" แบบเล่น Offline จริงๆ ต้องทำยังไง?
+ถ้าคุณอยากให้แอปนี้เล่นซ้ำได้ไวปรู๊ดปร๊าด และเล่นแบบไม่มีเน็ต (Offline) ได้ด้วย เราต้อง เปลี่ยนโครงสร้างแอปนิดหน่อย ครับ:
+
+หาโหลดไฟล์ MP3: ดาวน์โหลดเพลงที่น้องเฌอชอบมาเป็นไฟล์ .mp3 (เช่น song1.mp3, song2.mp3)
+
+เก็บไฟล์ไว้ด้วยกัน: เอาไฟล์ MP3 ไปวางไว้ในโฟลเดอร์เดียวกับไฟล์โค้ด .html ของเรา
+
+เปลี่ยนโค้ดไปใช้ <audio> ของ HTML5: ถอดระบบ YouTube API ออก แล้วเปลี่ยนมาใช้ระบบเล่นเสียงพื้นฐานของเว็บแทน (ซึ่งเขียนง่ายและเสถียรกว่า YouTube มาก)
+
+อัปโหลดขึ้น GitHub Pages ทั้งหมด: เอาไฟล์ HTML และไฟล์ MP3 อัปโหลดขึ้นไปพร้อมกันเลย (GitHub Pages ให้พื้นที่เก็บไฟล์ฟรี 1 GB ซึ่งใส่ไฟล์ MP3 เพลงเด็ก 10-20 เพลงได้สบายๆ ครับ)
+
+ข้อดีของการทำแบบ MP3:
+
+ไม่ต้องกังวลเรื่อง YouTube บล็อกหรือวิดีโอติดลิขสิทธิ์อีกต่อไป
+
+โหลดเร็วมาก เพราะเบราว์เซอร์จะจำไฟล์ (Cache) ไว้ให้อัตโนมัติในครั้งแรกที่เปิด
+
+ถ้าโหลดเว็บขึ้นมาแล้ว ถึงเน็ตจะหลุดก็ยังกดเล่นเพลงได้!
+
+อยากให้ผมลองปรับโค้ดแอป "เพลงของเฌอ" จากเวอร์ชัน YouTube ให้กลายเป็นเวอร์ชัน อ่านไฟล์ MP3 ล้วนๆ เพื่อให้คุณเอาไปลองใช้งานดูไหมครับ?
+
+พอเป็น mp3 จะผิดลิขสิทธิ์มั้ย
+
+ตอบแบบตรงไปตรงมาเลยคือ "ผิดลิขสิทธิ์เต็มๆ ครับ" 🚨
+
+ถ้าเราดาวน์โหลดเพลงฮิตๆ (เช่น เบบี้ชาร์ค, Cocomelon หรือเพลงเด็กที่มีค่ายเพลง) มาแปลงเป็นไฟล์ MP3 แล้วนำไปอัปโหลดขึ้น GitHub Pages จะมีความผิดใน 2 ส่วนหลักๆ ครับ:
+
+1. ผิดกฎหมายลิขสิทธิ์ (การทำซ้ำและดัดแปลง) ⚖️
+ถึงแม้เราจะตั้งใจทำให้น้องเฌอฟังคนเดียว แต่ GitHub Pages คือพื้นที่สาธารณะ (Public Server) บนอินเทอร์เน็ต การเอาไฟล์ MP3 ที่มีลิขสิทธิ์ไปวางไว้บนนั้น ในทางกฎหมายจะถือว่าเรากำลัง "แจกจ่ายและเผยแพร่ผลงานอันมีลิขสิทธิ์โดยไม่ได้รับอนุญาต" ครับ
+
+2. ผิดข้อตกลงของ YouTube (Terms of Service) 📜
+การใช้โปรแกรมหรือเว็บเธิร์ดปาร์ตี้ไป "ดูด" วิดีโอจาก YouTube ออกมาเป็นไฟล์ MP3 ถือเป็นการผิดกฎการใช้งานของ YouTube อย่างชัดเจนครับ
+
+🌩️ ความเสี่ยงที่จะเกิดขึ้น (ถ้าเอา MP3 ขึ้น GitHub Pages)
+จะไม่มีตำรวจมาจับถึงบ้านครับ แต่สิ่งที่มักจะเกิดขึ้นคือ เจ้าของลิขสิทธิ์เขามีบอทคอยสแกนหาไฟล์ MP3 บนเน็ต ถ้าเขาเจอว่าไฟล์ของเขาอยู่บน GitHub ของคุณ เขาจะส่งใบเตือนที่เรียกว่า DMCA Takedown ไปหา GitHub และ GitHub จะทำการระงับหรือลบโปรเจกต์ของคุณทิ้งทันทีครับ
+
+💡 ทางออกที่ดีที่สุด (ทำแอปออฟไลน์ 100% แบบถูกกติกา)
+ถ้าเป้าหมายหลักคือ "อยากให้น้องเฌอฟังแบบไม่มีเน็ตได้ ลื่นไหล และปลอดภัย" ผมแนะนำวิธี Local Offline ครับ ซึ่งง่ายและไม่ต้องพึ่งพา GitHub Pages เลย:
+
+สร้างโฟลเดอร์ในเครื่อง: สร้างโฟลเดอร์ชื่อ "เพลงของเฌอ" ในคอมพิวเตอร์ แท็บเล็ต หรือมือถือ
+
+เก็บไฟล์ไว้ด้วยกัน: นำไฟล์ .html ของแอป และไฟล์เพลง .mp3 ทั้งหมด ไปใส่รวมไว้ในโฟลเดอร์นี้
+
+เปิดเล่นตรงๆ (ไม่ต้องมีเน็ต): เวลาจะใช้งาน ก็แค่จิ้มเปิดไฟล์ .html ขึ้นมา เบราว์เซอร์จะดึงเพลง MP3 จากในโฟลเดอร์นั้นมาเล่นให้ทันที
+
+ทำไมวิธีนี้ถึงดีที่สุด?
+
+เป็น Private Use (การใช้งานส่วนตัว) อย่างแท้จริง: กฎหมายลิขสิทธิ์ส่วนใหญ่อนุโลมให้กับการทำซ้ำเพื่อใช้ฟังเองส่วนตัวในครอบครัว (Fair Use) ตราบใดที่เราไม่ได้อัปโหลดไฟล์ไปแจกใครบนอินเทอร์เน็ต
+
+แก้ปัญหา file:/// ของเบราว์เซอร์: การโหลดไฟล์ MP3 ที่อยู่ในเครื่องตัวเอง เบราว์เซอร์จะไม่บล็อกเหมือนตอนเราพยายามต่ออินเทอร์เน็ตไปดึง YouTube API ครับ ทำให้ออฟไลน์ได้สมบูรณ์แบบ 100%
+
+คุณสะดวกที่จะใช้งานแอปในรูปแบบการสร้างโฟลเดอร์เก็บไฟล์ไว้ในเครื่อง (Local) แบบนี้ไหมครับ หรือว่ายังจำเป็นต้องให้แอปออนไลน์ผ่านลิงก์เว็บอยู่ จะได้ช่วยปรับโค้ดให้ตรงกับความต้องการที่สุดครับ?
+
+ขอทำ version online บน github page ก่อน
+
+เปลี่ยน ui คล้ายกับ youtube บนมือถือ โดยไม่มีหน้าจอ
+
+มีช่องให้ค้นหาเพลงได้
+
+ด้านล่างสุดไม่ต้องมี ปรับเสียง เปลี่ยนเป็น ตัวอักษรพิมพ์ว่า by thpl.me
+
+ได้เลยครับ! เพื่อให้เข้ากับการนำไปรันออนไลน์บน GitHub Pages ผมได้ปรับโฉมแอปใหม่ทั้งหมดให้เป็น "สไตล์ YouTube บนมือถือ" (เรียบหรู ดูง่าย คล่องตัว) ตามที่คุณต้องการเป๊ะๆ เลยครับ
+
+✨ สิ่งที่ปรับปรุงในเวอร์ชันนี้:
+
+UI คล้าย YouTube App: เปลี่ยนจากปุ่มกด มาเป็นหน้าตารายการเพลง (List view) เรียงลงมา มีแถบ Mini Player สีขาวแดงติดอยู่ด้านล่างสุด
+
+มีระบบค้นหา (Search): พิมพ์ชื่อเพลงปุ๊บ รายการเพลงจะกรองให้ทันที
+
+ไม่มีหน้าจอวิดีโอ: ซ่อนวิดีโอไว้ 100% เล่นแต่เสียงแบบ Music Player
+
+ตัดแถบปรับเสียงออก: ตามที่ขอครับ (ให้ผู้ใช้กดเพิ่มลดเสียงจากปุ่มด้านข้างมือถือแทน)
+
+เพิ่มเครดิตด้านล่าง: ใส่คำว่า by thpl.me ไว้ท้ายสุด
+
+ก๊อปปี้โค้ดด้านล่างนี้ ไปทับไฟล์ index.html ของคุณเพื่อเตรียมเอาขึ้น GitHub Pages ได้เลยครับ:
+
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<title>🎵 เพลงของเฌอ</title>
+<style>
+  /* Reset & Base */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #0f0f0f; padding-bottom: 90px; user-select: none; }
+  
+  /* Header & Search */
+  .header { position: sticky; top: 0; background: #fff; z-index: 10; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 14px; }
+  .top-bar { display: flex; align-items: center; gap: 10px; }
+  .app-logo { background: #ff0000; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .app-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  
+  .search-box { display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 8px 16px; height: 40px; }
+  .search-box svg { width: 18px; height: 18px; fill: #606060; margin-right: 10px; }
+  .search-box input { border: none; background: transparent; outline: none; width: 100%; font-family: 'Sarabun', sans-serif; font-size: 15px; }
+  .search-box input::placeholder { color: #606060; }
+  
+  /* Song List */
+  .song-list { display: flex; flex-direction: column; }
+  .song-item { display: flex; align-items: center; padding: 12px 16px; cursor: pointer; transition: background 0.2s; }
+  .song-item:active { background: #f2f2f2; }
+  .song-item.active { background: #f9f9f9; }
+  .song-item.active .song-title { color: #ff0000; }
+  
+  .song-thumb { width: 44px; height: 44px; background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-right: 14px; flex-shrink: 0; }
+  .song-info { flex: 1; overflow: hidden; }
+  .song-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; line-height: 1.3; }
+  .song-meta { font-size: 13px; color: #606060; }
+  
+  /* Playing Animation (Equalizer) */
+  .playing-anim { display: none; align-items: flex-end; gap: 2px; height: 14px; margin-left: 10px; }
+  .song-item.active.playing .playing-anim { display: flex; }
+  .bar { width: 3px; background: #ff0000; animation: bounce 1s infinite ease-in-out; }
+  .bar:nth-child(2) { animation-delay: 0.2s; }
+  .bar:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+
+  /* Mini Player (Bottom) */
+  .mini-player { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.06); z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+  .progress-area { width: 100%; height: 3px; background: #e5e5e5; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: #ff0000; width: 0%; pointer-events: none; transition: width 0.1s linear; }
+  
+  .player-content { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; height: 60px; }
+  .player-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .now-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #0f0f0f; }
+  .now-time { font-size: 12px; color: #606060; margin-top: 3px; }
+  
+  .player-controls { display: flex; align-items: center; gap: 18px; margin-left: 16px; }
+  .ctrl-btn { background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ctrl-btn svg { width: 28px; height: 28px; fill: #0f0f0f; transition: transform 0.1s; }
+  .ctrl-btn:active svg { transform: scale(0.9); opacity: 0.7; }
+  .ctrl-play svg { width: 32px; height: 32px; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 30px 16px 50px; font-size: 13px; color: #888; font-weight: 500; }
+
+  /* Utils */
+  #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
+  .empty-state { text-align: center; padding: 40px 16px; color: #606060; font-size: 15px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="yt-player"></div>
+
+<div class="header">
+  <div class="top-bar">
+    <div class="app-logo">🎵</div>
+    <div class="app-title">เพลงของเฌอ</div>
+  </div>
+  <div class="search-box">
+    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+    <input type="text" id="searchInput" placeholder="ค้นหาเพลง..." oninput="handleSearch(event)">
+  </div>
+</div>
+
+<div class="song-list" id="songs-list">
+  </div>
+
+<div class="footer">by thpl.me</div>
+
+<div class="mini-player">
+  <div class="progress-area" onclick="seekTo(event)">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="player-content">
+    <div class="player-info">
+      <div class="now-title" id="now-title">ยังไม่ได้เลือกเพลง</div>
+      <div class="now-time" id="now-time"><span id="time-cur">0:00</span> / <span id="time-dur">0:00</span></div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="prevSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="ctrl-btn ctrl-play" onclick="togglePlay()">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="ctrl-btn" onclick="nextSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// รายการเพลง
+const SONGS = [
+  { id: 'K4DyBUG242c', emoji: '🎵', name: 'เพลงทดสอบ 1 (ไม่มีลิขสิทธิ์)' },
+  { id: 'jfKfPfyJRdk', emoji: '🌟', name: 'เพลงทดสอบ 2' },
+  { id: '0Vsh5wqNKtg', emoji: '🦈', name: 'เบบี้ชาร์ค' },
+  { id: 'xLzLnw7S05c', emoji: '🌊', name: 'สำรวจทะเล' },
+  { id: 'O7hFFxU56gE', emoji: '🐰', name: 'กระต่ายน้อย' },
+  { id: '2ckUJZYg1Js', emoji: '🎪', name: 'สวนสนุก' },
+  { id: 'HXN2aQ1IZHQ', emoji: '🌈', name: 'สายรุ้ง' },
+  { id: '1Mb92XPCGSo', emoji: '🎠', name: 'ม้าหมุน' },
+  { id: 'YYJveqE92x8', emoji: '🦋', name: 'ผีเสื้อ' },
+  { id: 'fXF7l_RBqeE', emoji: '🎶', name: 'ดนตรีของหนู' },
+];
+
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+let searchQuery = '';
+
+// ระบบวาดหน้าจอรายชื่อเพลง + ระบบค้นหา
+function renderList() {
+  const list = document.getElementById('songs-list');
+  const filtered = SONGS.map((s, i) => ({...s, origIdx: i}))
+                        .filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  
+  if(filtered.length === 0) {
+      list.innerHTML = '<div class="empty-state">ไม่พบเพลงที่ค้นหา 🥺</div>';
+      return;
+  }
+
+  list.innerHTML = filtered.map(s => `
+    <div class="song-item ${currentIdx === s.origIdx ? 'active' : ''} ${currentIdx === s.origIdx && isPlaying ? 'playing' : ''}" onclick="playSong(${s.origIdx})">
+      <div class="song-thumb">${s.emoji}</div>
+      <div class="song-info">
+        <div class="song-title">${s.name}</div>
+        <div class="song-meta">แทร็กที่ ${s.origIdx + 1}</div>
+      </div>
+      <div class="playing-anim">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function handleSearch(e) {
+  searchQuery = e.target.value;
+  renderList();
+}
+
+// YouTube IFrame API
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1', width: '1', videoId: SONGS[0].id,
+    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
+    events: { onReady: onPlayerReady, onStateChange: onStateChange, onError: onPlayerError }
+  });
+};
+
+function onPlayerReady(e) { player.setVolume(100); }
+
+function onPlayerError(e) {
+  document.getElementById('now-title').textContent = "เล่นไม่ได้ (ติดลิขสิทธิ์)";
+  document.getElementById('now-title').style.color = "#ff0000";
+  setPlayingState(false); stopProgress();
+}
+
+function onStateChange(e) {
+  document.getElementById('now-title').style.color = "#0f0f0f";
+
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true);
+    const data = player.getVideoData();
+    if (data && data.title) {
+      document.getElementById('now-title').textContent = data.title;
+      if (currentIdx >= 0) SONGS[currentIdx].name = data.title;
+    }
+    renderList(); // อัปเดตแอนิเมชันคลื่นเสียง
+    startProgress();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false); stopProgress(); renderList();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false); stopProgress(); nextSong();
+  } else if (e.data === YT.PlayerState.BUFFERING) {
+    document.getElementById('now-title').textContent = 'กำลังโหลด...';
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  currentIdx = idx;
+  document.getElementById('now-title').textContent = 'กำลังโหลด...';
+  document.getElementById('now-title').style.color = "#0f0f0f";
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+  renderList(); // อัปเดตไฮไลท์สีแดงที่รายการเพลง
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+  else player.playVideo();
+}
+
+function nextSong() { if (SONGS.length > 0) playSong((currentIdx + 1) % SONGS.length); }
+function prevSong() { if (SONGS.length > 0) playSong((currentIdx - 1 + SONGS.length) % SONGS.length); }
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+}
+
+function startProgress() { stopProgress(); progressTimer = setInterval(updateProgress, 500); }
+function stopProgress() { if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0; const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
+}
+
+renderList();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+🚀 วิธีนำขึ้น GitHub Pages อย่างรวดเร็ว:
+ล็อกอินเข้า GitHub
+
+สร้าง Repository ใหม่ ตั้งชื่ออะไรก็ได้ (เช่น cherr-music) แนะนำให้ตั้งเป็น Public
+
+อัปโหลดไฟล์ index.html (ที่มีโค้ดด้านบนนี้) ลงไปใน Repository นั้น
+
+ไปที่เมนู Settings (รูปฟันเฟืองของ Repository) > เลื่อนหาเมนูด้านซ้ายชื่อ Pages
+
+ตรง Source (หรือ Branch) ให้เลือกเป็น main แล้วกด Save
+
+รอประมาณ 1-2 นาที GitHub จะให้ลิงก์ URL มา คุณสามารถส่งลิงก์นั้นให้น้องเฌอเปิดบนมือถือหรือ iPad ได้เลยครับ!
+
+  { id: 'K4DyBUG242c', emoji: '🎵', name: 'เพลงทดสอบ 1 (ไม่มีลิขสิทธิ์)' },
+
+{ id: 'jfKfPfyJRdk', emoji: '🌟', name: 'เพลงทดสอบ 2' },
+
+{ id: '0Vsh5wqNKtg', emoji: '🦈', name: 'เบบี้ชาร์ค' },
+
+{ id: 'xLzLnw7S05c', emoji: '🌊', name: 'สำรวจทะเล' },
+
+{ id: 'O7hFFxU56gE', emoji: '🐰', name: 'กระต่ายน้อย' },
+
+{ id: '2ckUJZYg1Js', emoji: '🎪', name: 'สวนสนุก' },
+
+{ id: 'HXN2aQ1IZHQ', emoji: '🌈', name: 'สายรุ้ง' },
+
+{ id: '1Mb92XPCGSo', emoji: '🎠', name: 'ม้าหมุน' },
+
+{ id: 'YYJveqE92x8', emoji: '🦋', name: 'ผีเสื้อ' },
+
+{ id: 'fXF7l_RBqeE', emoji: '🎶', name: 'ดนตรีของหนู' },
+
+
+
+ไม่ hardcode เพลงแล้ว แต่ใช้การค้นหาเพลงจาก youtube ตรงๆ แล้วนำผลมาแสดงบนหน้าเว็บเรา
+
+คือ ทำเหมือนเป็นเว็บ youtube แต่ไม่มีหน้าจอเล่น สำหรับเด็กไม่ต้องดูจอ
+
+ส่วนลิสต์เพลง ขอแบบมีชื่อ และภาพเล็กๆ ประกอบด้วย
+
+ตามภาพตัวอย่าง
+
+ไอเดียนี้ล้ำมากครับ! การดึงระบบค้นหาของ YouTube มาไว้ในแอปเราเลย จะทำให้น้องเฌอมีเพลงฟังไม่จำกัดโดยที่เราไม่ต้องมานั่งแก้โค้ดเพิ่มเพลงเองอีกต่อไป แถมยังตอบโจทย์เรื่อง "ฟังแต่เสียง ไม่ต้องดูจอ" ได้สมบูรณ์แบบครับ
+
+แต่ก่อนจะไปดูโค้ด มีเรื่องสำคัญทางเทคนิคที่ต้องรู้ 1 เรื่องครับ:
+เบราว์เซอร์มีระบบรักษาความปลอดภัย (CORS) ทำให้เราเขียนโค้ดไปแอบดึงข้อมูลหน้าเว็บ YouTube ตรงๆ ไม่ได้ การจะทำระบบค้นหาแบบนี้ เราจะต้องใช้ YouTube Data API v3 ซึ่งเป็นระบบหลังบ้านทางการของ Google ครับ (ใช้งานฟรี แต่คุณต้องไปกดสร้าง API Key ของตัวเองมาใส่ในโค้ด)
+
+ผมเขียนโค้ดเตรียมระบบทั้งหมดไว้ให้แล้ว รวมถึงปรับ UI ให้แสดงรูปภาพหน้าปก (Thumbnail) และชื่อช่อง ตามแบบที่คุณต้องการเป๊ะๆ ครับ
+
+🛠️ โค้ดเวอร์ชันค้นหา YouTube สดๆ (Dynamic Search)
+ให้ก๊อปปี้โค้ดนี้ไปทับไฟล์ index.html เดิมได้เลยครับ:
+
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<title>🎵 เพลงของเฌอ</title>
+<style>
+  /* Reset & Base */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #0f0f0f; padding-bottom: 90px; user-select: none; }
+  
+  /* Header & Search */
+  .header { position: sticky; top: 0; background: #fff; z-index: 10; padding: 12px 16px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 14px; }
+  .top-bar { display: flex; align-items: center; gap: 10px; }
+  .app-logo { background: #ff0000; color: #fff; width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .app-title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+  
+  .search-container { display: flex; gap: 8px; }
+  .search-box { flex: 1; display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 8px 16px; height: 40px; }
+  .search-box svg { width: 18px; height: 18px; fill: #606060; margin-right: 10px; }
+  .search-box input { border: none; background: transparent; outline: none; width: 100%; font-family: 'Sarabun', sans-serif; font-size: 15px; }
+  .search-btn { background: #0f0f0f; color: #fff; border: none; border-radius: 20px; padding: 0 16px; font-family: 'Sarabun', sans-serif; font-weight: 600; cursor: pointer; height: 40px; }
+  .search-btn:active { background: #333; }
+  
+  /* Song List */
+  .song-list { display: flex; flex-direction: column; }
+  .song-item { display: flex; align-items: center; padding: 12px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #f9f9f9; }
+  .song-item:active { background: #f2f2f2; }
+  .song-item.active { background: #fdf5f5; }
+  .song-item.active .song-title { color: #ff0000; }
+  
+  /* Thumbnail styling */
+  .song-thumb-img { width: 80px; height: 45px; object-fit: cover; border-radius: 6px; margin-right: 14px; flex-shrink: 0; background: #e5e5e5; }
+  
+  .song-info { flex: 1; overflow: hidden; }
+  .song-title { font-size: 15px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 4px; line-height: 1.3; }
+  .song-meta { font-size: 12px; color: #606060; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Playing Animation */
+  .playing-anim { display: none; align-items: flex-end; gap: 2px; height: 14px; margin-left: 10px; }
+  .song-item.active.playing .playing-anim { display: flex; }
+  .bar { width: 3px; background: #ff0000; animation: bounce 1s infinite ease-in-out; }
+  .bar:nth-child(2) { animation-delay: 0.2s; }
+  .bar:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 100% { height: 4px; } 50% { height: 14px; } }
+
+  /* Mini Player (Bottom) */
+  .mini-player { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.06); z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+  .progress-area { width: 100%; height: 3px; background: #e5e5e5; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: #ff0000; width: 0%; pointer-events: none; transition: width 0.1s linear; }
+  
+  .player-content { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; height: 60px; }
+  .player-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .now-title { font-size: 15px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #0f0f0f; }
+  .now-time { font-size: 12px; color: #606060; margin-top: 3px; }
+  
+  .player-controls { display: flex; align-items: center; gap: 18px; margin-left: 16px; }
+  .ctrl-btn { background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ctrl-btn svg { width: 28px; height: 28px; fill: #0f0f0f; transition: transform 0.1s; }
+  .ctrl-btn:active svg { transform: scale(0.9); opacity: 0.7; }
+  .ctrl-play svg { width: 32px; height: 32px; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 30px 16px 50px; font-size: 13px; color: #888; font-weight: 500; }
+
+  /* Utils */
+  #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
+  .status-msg { text-align: center; padding: 40px 16px; color: #606060; font-size: 15px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="yt-player"></div>
+
+<div class="header">
+  <div class="top-bar">
+    <div class="app-logo">🎵</div>
+    <div class="app-title">เพลงของเฌอ</div>
+  </div>
+  <div class="search-container">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="searchInput" placeholder="พิมพ์ชื่อเพลงที่นี่..." onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="search-btn" onclick="searchYouTube()">ค้นหา</button>
+  </div>
+</div>
+
+<div class="song-list" id="songs-list">
+  <div class="status-msg">พิมพ์ชื่อเพลงที่ต้องการค้นหาด้านบนเลย! ✨</div>
+</div>
+
+<div class="footer">by thpl.me</div>
+
+<div class="mini-player">
+  <div class="progress-area" onclick="seekTo(event)">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="player-content">
+    <div class="player-info">
+      <div class="now-title" id="now-title">ยังไม่ได้เลือกเพลง</div>
+      <div class="now-time" id="now-time"><span id="time-cur">0:00</span> / <span id="time-dur">0:00</span></div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="prevSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="ctrl-btn ctrl-play" onclick="togglePlay()">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="ctrl-btn" onclick="nextSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// 🔴 คำเตือน: คุณต้องนำ API Key ของคุณมาใส่ตรงนี้
+// ==========================================
+const YOUTUBE_API_KEY = 'ใส่_API_KEY_ของคุณที่นี่'; 
+
+let SONGS = [];
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+
+// กด Enter เพื่อค้นหา
+function handleKeyPress(e) {
+  if (e.key === 'Enter') searchYouTube();
+}
+
+// ระบบค้นหาผ่าน YouTube Data API v3
+async function searchYouTube() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+
+  const listEl = document.getElementById('songs-list');
+  listEl.innerHTML = '<div class="status-msg">กำลังค้นหา... ⏳</div>';
+
+  if (YOUTUBE_API_KEY === 'ใส่_API_KEY_ของคุณที่นี่') {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">กรุณาใส่ API Key ในโค้ดก่อนใช้งานครับ 🚨</div>';
+    return;
+  }
+
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.error) {
+      listEl.innerHTML = `<div class="status-msg" style="color:red;">Error: ${data.error.message}</div>`;
+      return;
+    }
+
+    if (data.items && data.items.length > 0) {
+      // แปลงข้อมูลจาก API มาใส่ใน Array SONGS ของเรา
+      SONGS = data.items.map(item => ({
+        id: item.id.videoId,
+        name: decodeHTML(item.snippet.title),
+        channel: decodeHTML(item.snippet.channelTitle),
+        thumb: item.snippet.thumbnails.medium.url // ใช้รูปขนาดกลางเพื่อความคมชัด
+      }));
+      renderList();
+    } else {
+      listEl.innerHTML = '<div class="status-msg">ไม่พบเพลงที่คุณหา 🥺</div>';
+    }
+  } catch (error) {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">ระบบค้นหามีปัญหา โปรดลองใหม่</div>';
+  }
+}
+
+// วาดรายการเพลงบนหน้าจอ
+function renderList() {
+  const list = document.getElementById('songs-list');
+  list.innerHTML = SONGS.map((s, i) => `
+    <div class="song-item ${currentIdx === i ? 'active' : ''} ${currentIdx === i && isPlaying ? 'playing' : ''}" onclick="playSong(${i})">
+      <img src="${s.thumb}" class="song-thumb-img" alt="thumbnail">
+      <div class="song-info">
+        <div class="song-title">${s.name}</div>
+        <div class="song-meta">${s.channel}</div>
+      </div>
+      <div class="playing-anim">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ช่วยถอดรหัสตัวอักษรแปลกๆ จาก YouTube (เช่น &amp;)
+function decodeHTML(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
+// ==========================================
+// ส่วนของการเล่นเพลง (IFrame API) ยังเหมือนเดิม
+// ==========================================
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1', width: '1', videoId: '',
+    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
+    events: { onReady: onPlayerReady, onStateChange: onStateChange, onError: onPlayerError }
+  });
+};
+
+function onPlayerReady(e) { player.setVolume(100); }
+
+function onPlayerError(e) {
+  document.getElementById('now-title').textContent = "เล่นไม่ได้ (ติดลิขสิทธิ์ช่อง)";
+  document.getElementById('now-title').style.color = "#ff0000";
+  setPlayingState(false); stopProgress();
+}
+
+function onStateChange(e) {
+  document.getElementById('now-title').style.color = "#0f0f0f";
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true); startProgress(); renderList();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false); stopProgress(); renderList();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false); stopProgress(); nextSong();
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  currentIdx = idx;
+  document.getElementById('now-title').textContent = SONGS[idx].name;
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+  renderList();
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { if(SONGS.length > 0) playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+  else player.playVideo();
+}
+
+function nextSong() { if (SONGS.length > 0) playSong((currentIdx + 1) % SONGS.length); }
+function prevSong() { if (SONGS.length > 0) playSong((currentIdx - 1 + SONGS.length) % SONGS.length); }
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+}
+
+function startProgress() { stopProgress(); progressTimer = setInterval(updateProgress, 500); }
+function stopProgress() { if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0; const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
+}
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+🔑 วิธีขอ YouTube API Key (ทำครั้งเดียว ฟรี!)
+ในโค้ดบรรทัดที่ 124 คุณจะเห็นตัวแปร YOUTUBE_API_KEY ถ้าไม่เอาคีย์มาใส่ มันจะค้นหาไม่เจอครับ วิธีไปเอาคีย์ทำตามนี้ได้เลย:
+
+ล็อกอินเข้า Google แล้วไปที่เว็บ Google Cloud Console
+
+มุมซ้ายบน กดคำว่า Select a project (หรือเลือกระบบโปรเจกต์) แล้วกด New Project ตั้งชื่อว่าอะไรก็ได้ (เช่น Cherr-Music) แล้วกด Create
+
+พอมันสร้างเสร็จ (รอแป๊บเดียว) ให้เลือกโปรเจกต์นั้น แล้วไปที่เมนูซ้ายมือ เลือก APIs & Services > Library
+
+ในช่องค้นหา พิมพ์คำว่า YouTube Data API v3 กดคลิกเข้าไป แล้วกดปุ่มสีฟ้า Enable (เปิดใช้งาน)
+
+พอมันเปิดใช้งานเสร็จ ให้ดูเมนูซ้ายมือ เลือก Credentials (ข้อมูลรับรอง)
+
+กดปุ่ม + CREATE CREDENTIALS (สร้างข้อมูลรับรอง) ด้านบน เลือก API key
+
+จะมีหน้าต่างเด้งขึ้นมาพร้อมโค้ดยาวๆ (นั่นคือ API Key ของคุณ) ให้ Copy มาวางแทนคำว่า 'ใส่_API_KEY_ของคุณที่นี่' ในไฟล์ HTML ได้เลยครับ
+
+เอา API Key ใส่เสร็จ เซฟ แล้วอัปโหลดไฟล์นี้ขึ้น GitHub Pages ได้เลย คราวนี้พิมพ์ชื่อเพลงอะไรลงไป มันจะดึงภาพปก ชื่อคลิป และชื่อช่อง มาโชว์แบบยูทูปเป๊ะๆ แถมกดฟังได้เลยครับ!
+
+ต้องการ เพิ่ม icon ด้วย เวลากดในมือถือ ให้เพิ่มในหน้า home จะได้มี icon
+
+ไอเดียนี้เยี่ยมมากเลยครับ! ถ้าทำให้อยู่บนหน้า Home Screen (Add to Home Screen) แล้วมีไอคอนน่ารักๆ จะทำให้ออกมาเหมือนแอปพลิเคชันจริงๆ 100% เลยครับ น้องเฌอกดเข้าใช้ง่ายขึ้นด้วย
+
+วิธีทำง่ายมากครับ แบ่งเป็น 2 ขั้นตอนสั้นๆ ดังนี้ครับ:
+
+ขั้นตอนที่ 1: เตรียมรูปไอคอน
+หารูปภาพที่ต้องการทำเป็นไอคอน (แนะนำให้เป็นรูปทรง สี่เหลี่ยมจัตุรัส เช่น ขนาด 512x512 พิกเซล)
+
+เซฟไฟล์รูปนั้นให้เป็นนามสกุล PNG และตั้งชื่อว่า icon.png
+
+อัปโหลดไฟล์ icon.png นี้ขึ้นไปบน GitHub ให้อยู่ในโฟลเดอร์เดียวกับไฟล์ index.html เลยครับ
+
+ขั้นตอนที่ 2: เพิ่มโค้ดลงในไฟล์ index.html
+ให้คุณเปิดไฟล์ index.html แล้วเลื่อนไปดูที่ส่วนบนสุด ตรงที่อยู่ระหว่างแท็ก <head> กับ </head>
+
+ให้ เพิ่มโค้ด 2 บรรทัดนี้ เข้าไปครับ:
+
+HTML
+<link rel="icon" type="image/png" href="icon.png">
+
+<link rel="apple-touch-icon" href="icon.png">
+📝 ตัวอย่างโค้ดช่วง <head> ที่สมบูรณ์ (ก๊อปปี้ไปวางทับส่วนหัวเดิมได้เลย):
+HTML
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="เพลงของเฌอ">
+<meta name="theme-color" content="#ffffff">
+
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
+<title>🎵 เพลงของเฌอ</title>
+<style>
+  /* Reset & Base และโค้ด CSS ของเดิมทั้งหมดอยู่ตรงนี้... */
+📱 วิธีติดตั้งลงเครื่อง (Add to Home Screen):
+หลังจากเอาโค้ดและรูปขึ้น GitHub เรียบร้อยแล้ว:
+
+ถ้าใช้ iPhone/iPad (Safari): เปิดลิงก์เว็บ > กดปุ่ม "แชร์" (สี่เหลี่ยมมีลูกศรชี้ขึ้น) > เลือก "เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen) * ถ้าใช้ Android (Chrome): เปิดลิงก์เว็บ > กดจุด 3 จุดมุมขวาบน > เลือก "เพิ่มลงในหน้าจอหลัก" (Add to Home screen)
+
+เท่านี้ก็จะได้แอป "เพลงของเฌอ" พร้อมไอคอนสวยๆ อยู่บนหน้าจอมือถือ กดปุ๊บแอปเด้งขึ้นมาแบบไม่มีแถบ URL ของเบราว์เซอร์กวนใจ เหมือนแอปแท้ๆ เลยครับ!
+
+ออกแบบ icon.png ขนาด 512*512 สำหรับเพลงเด็ก 3 ขวบ มีรูปสัญลักษณ์ ต้นไม้ (เฌอ)
+
+ สร้างโดย AI
+
+ปรับปรุงโค้ด
+
+ไอคอนด้านบนหน้าเว็บ ขอให้เป็น รูปต้นไม้ แบบที่ออกแบบไว้ แล้วตามด้วยข้อความ เพลงของเฌอ สีเดียวกับที่ออกแบบ และตามด้วยตัวอักษร v.0.3.0
+
+
+
+ต้องการให้มี preload เพลงขึ้นมาก่อน เมื่อเปิดเข้ามา และยังไม่ได้ค้นหา
+
+เอา 6 เพลง ตามโค้ดแรก
+
+
+
+ต้องการเพิ่มความสูง ของลิสต์รายการเพลง อีกเป็น 1.5 เท่า
+
+ปรับปรุงโค้ดให้ตามที่คุณต้องการเรียบร้อยแล้วครับ!
+
+สิ่งที่ปรับเปลี่ยนในเวอร์ชัน 0.3.0:
+
+ไอคอนต้นไม้และชื่อแอป: เปลี่ยนกล่องสีแดงเป็นดึงรูป icon.png (รูปต้นไม้ที่คุณจะเซฟไปไว้ในโฟลเดอร์) มาแสดงแทน และไล่สีตัวอักษร "เพลงของเฌอ" ให้เป็นโทน ฟ้า-เหลือง-ส้ม เหมือนในภาพออกแบบ พร้อมห้อยท้ายด้วย v.0.3.0
+
+โหลด 6 เพลงแรกรอไว้เลย (Preload): เมื่อเปิดแอปมา จะมีลิสต์เพลงเบบี้ชาร์ค, สำรวจทะเล ฯลฯ โชว์ขึ้นมาทันทีโดยไม่ต้องรอค้นหา (ดึงภาพปกจาก YouTube มาให้อัตโนมัติ) และถ้าลบคำค้นหาแล้วกดค้นหาใหม่ ก็จะกลับมาหน้า 6 เพลงแรกนี้ครับ
+
+ขยายขนาดลิสต์เพลง 1.5 เท่า: ปรับเพิ่มความสูงของแต่ละแถว ขยายรูปปก (Thumbnail) และปรับตัวอักษรให้ใหญ่ขึ้น เพื่อให้น้องเฌอกดง่ายขึ้นและมองเห็นภาพชัดเจนครับ
+
+ก๊อปปี้โค้ดด้านล่างนี้ไปวางทับในไฟล์ index.html ได้เลยครับ:
+
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
+<title>🎵 เพลงของเฌอ v.0.3.0</title>
+<style>
+  /* Reset & Base */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #0f0f0f; padding-bottom: 90px; user-select: none; }
+  
+  /* Header & Search */
+  .header { position: sticky; top: 0; background: #fff; z-index: 10; padding: 16px 16px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+  .top-bar { display: flex; align-items: center; gap: 12px; }
+  
+  /* โลโก้ และ ชื่อแอป แบบใหม่ */
+  .app-logo-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .app-title { display: flex; align-items: baseline; gap: 8px; }
+  .title-text {
+    background: linear-gradient(90deg, #5D9CEC, #FFCE54, #FC6E51);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -0.5px;
+  }
+  .app-version { font-size: 13px; color: #a0a0a0; font-weight: 600; }
+  
+  .search-container { display: flex; gap: 8px; }
+  .search-box { flex: 1; display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 8px 16px; height: 44px; }
+  .search-box svg { width: 20px; height: 20px; fill: #606060; margin-right: 10px; }
+  .search-box input { border: none; background: transparent; outline: none; width: 100%; font-family: 'Sarabun', sans-serif; font-size: 16px; }
+  .search-btn { background: #0f0f0f; color: #fff; border: none; border-radius: 20px; padding: 0 18px; font-family: 'Sarabun', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; height: 44px; }
+  .search-btn:active { background: #333; }
+  
+  /* Song List (ขนาดใหญ่ขึ้น 1.5 เท่า) */
+  .song-list { display: flex; flex-direction: column; }
+  .song-item { display: flex; align-items: center; padding: 18px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #f5f5f5; }
+  .song-item:active { background: #f2f2f2; }
+  .song-item.active { background: #fdf5f5; }
+  .song-item.active .song-title { color: #ff0000; }
+  
+  /* Thumbnail styling (ใหญ่ขึ้น) */
+  .song-thumb-img { width: 120px; height: 67px; object-fit: cover; border-radius: 8px; margin-right: 16px; flex-shrink: 0; background: #e5e5e5; }
+  
+  .song-info { flex: 1; overflow: hidden; }
+  .song-title { font-size: 17px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 6px; line-height: 1.35; }
+  .song-meta { font-size: 14px; color: #606060; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Playing Animation */
+  .playing-anim { display: none; align-items: flex-end; gap: 3px; height: 16px; margin-left: 12px; }
+  .song-item.active.playing .playing-anim { display: flex; }
+  .bar { width: 4px; background: #ff0000; animation: bounce 1s infinite ease-in-out; border-radius: 2px; }
+  .bar:nth-child(2) { animation-delay: 0.2s; }
+  .bar:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 100% { height: 5px; } 50% { height: 16px; } }
+
+  /* Mini Player (Bottom) */
+  .mini-player { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.06); z-index: 100; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid #f0f0f0; }
+  .progress-area { width: 100%; height: 3px; background: #e5e5e5; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: #ff0000; width: 0%; pointer-events: none; transition: width 0.1s linear; }
+  
+  .player-content { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; height: 65px; }
+  .player-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .now-title { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #0f0f0f; }
+  .now-time { font-size: 13px; color: #606060; margin-top: 3px; }
+  
+  .player-controls { display: flex; align-items: center; gap: 20px; margin-left: 16px; }
+  .ctrl-btn { background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ctrl-btn svg { width: 30px; height: 30px; fill: #0f0f0f; transition: transform 0.1s; }
+  .ctrl-btn:active svg { transform: scale(0.9); opacity: 0.7; }
+  .ctrl-play svg { width: 36px; height: 36px; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 30px 16px 50px; font-size: 14px; color: #aaa; font-weight: 500; }
+
+  /* Utils */
+  #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
+  .status-msg { text-align: center; padding: 50px 16px; color: #606060; font-size: 16px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="yt-player"></div>
+
+<div class="header">
+  <div class="top-bar">
+    <img src="icon.png" class="app-logo-img" alt="logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'44\' height=\'44\' fill=\'#e5e5e5\'/></svg>'">
+    <div class="app-title">
+      <span class="title-text">เพลงของเฌอ</span>
+      <span class="app-version">v.0.3.0</span>
+    </div>
+  </div>
+  <div class="search-container">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="searchInput" placeholder="พิมพ์ชื่อเพลงที่นี่..." onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="search-btn" onclick="searchYouTube()">ค้นหา</button>
+  </div>
+</div>
+
+<div class="song-list" id="songs-list">
+  </div>
+
+<div class="footer">by thpl.me</div>
+
+<div class="mini-player">
+  <div class="progress-area" onclick="seekTo(event)">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="player-content">
+    <div class="player-info">
+      <div class="now-title" id="now-title">ยังไม่ได้เลือกเพลง</div>
+      <div class="now-time" id="now-time"><span id="time-cur">0:00</span> / <span id="time-dur">0:00</span></div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="prevSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="ctrl-btn ctrl-play" onclick="togglePlay()">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="ctrl-btn" onclick="nextSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// 🔴 คำเตือน: คุณต้องนำ API Key ของคุณมาใส่ตรงนี้เหมือนเดิมนะครับ
+// ==========================================
+const YOUTUBE_API_KEY = 'ใส่_API_KEY_ของคุณที่นี่'; 
+
+// 6 เพลงเริ่มต้นที่จะโหลดขึ้นมาทันทีเมื่อเปิดแอป
+const DEFAULT_SONGS = [
+  { id: '0Vsh5wqNKtg', name: 'เบบี้ชาร์ค รวมเพลงเด็กสนุกๆ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/0Vsh5wqNKtg/mqdefault.jpg' },
+  { id: 'xLzLnw7S05c', name: 'สำรวจทะเล และผองเพื่อน', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/xLzLnw7S05c/mqdefault.jpg' },
+  { id: 'O7hFFxU56gE', name: 'กระต่ายน้อยน่ารัก', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/O7hFFxU56gE/mqdefault.jpg' },
+  { id: '2ckUJZYg1Js', name: 'ไปเที่ยวสวนสนุกกันเถอะ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/2ckUJZYg1Js/mqdefault.jpg' },
+  { id: 'HXN2aQ1IZHQ', name: 'สายรุ้ง 7 สี', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/HXN2aQ1IZHQ/mqdefault.jpg' },
+  { id: '1Mb92XPCGSo', name: 'ม้าหมุนดนตรี', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/1Mb92XPCGSo/mqdefault.jpg' }
+];
+
+let SONGS = [...DEFAULT_SONGS]; // กำหนดให้ลิสต์เพลงปัจจุบันคือ 6 เพลงแรก
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+
+// กด Enter เพื่อค้นหา
+function handleKeyPress(e) {
+  if (e.key === 'Enter') searchYouTube();
+}
+
+// ระบบค้นหา
+async function searchYouTube() {
+  const query = document.getElementById('searchInput').value.trim();
+  const listEl = document.getElementById('songs-list');
+  
+  // ถ้าช่องค้นหาว่างเปล่า ให้กลับไปโชว์ 6 เพลงแรก
+  if (!query) {
+    SONGS = [...DEFAULT_SONGS];
+    renderList();
+    return;
+  }
+
+  listEl.innerHTML = '<div class="status-msg">กำลังค้นหา... ⏳</div>';
+
+  if (YOUTUBE_API_KEY === 'ใส่_API_KEY_ของคุณที่นี่') {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">กรุณาใส่ API Key ในโค้ดก่อนใช้งานการค้นหาครับ 🚨</div>';
+    return;
+  }
+
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.error) {
+      listEl.innerHTML = `<div class="status-msg" style="color:red;">Error: ${data.error.message}</div>`;
+      return;
+    }
+
+    if (data.items && data.items.length > 0) {
+      SONGS = data.items.map(item => ({
+        id: item.id.videoId,
+        name: decodeHTML(item.snippet.title),
+        channel: decodeHTML(item.snippet.channelTitle),
+        thumb: item.snippet.thumbnails.medium.url
+      }));
+      renderList();
+    } else {
+      listEl.innerHTML = '<div class="status-msg">ไม่พบเพลงที่คุณหา 🥺</div>';
+    }
+  } catch (error) {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">ระบบค้นหามีปัญหา โปรดลองใหม่</div>';
+  }
+}
+
+// วาดรายการเพลงบนหน้าจอ
+function renderList() {
+  const list = document.getElementById('songs-list');
+  list.innerHTML = SONGS.map((s, i) => `
+    <div class="song-item ${currentIdx === i ? 'active' : ''} ${currentIdx === i && isPlaying ? 'playing' : ''}" onclick="playSong(${i})">
+      <img src="${s.thumb}" class="song-thumb-img" alt="thumbnail">
+      <div class="song-info">
+        <div class="song-title">${s.name}</div>
+        <div class="song-meta">${s.channel}</div>
+      </div>
+      <div class="playing-anim">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ช่วยถอดรหัสตัวอักษรแปลกๆ จาก YouTube
+function decodeHTML(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
+// ==========================================
+// ส่วนของการเล่นเพลง (IFrame API) 
+// ==========================================
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1', width: '1', videoId: '',
+    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
+    events: { onReady: onPlayerReady, onStateChange: onStateChange, onError: onPlayerError }
+  });
+};
+
+function onPlayerReady(e) { player.setVolume(100); }
+
+function onPlayerError(e) {
+  document.getElementById('now-title').textContent = "เล่นไม่ได้ (ติดลิขสิทธิ์ช่อง)";
+  document.getElementById('now-title').style.color = "#ff0000";
+  setPlayingState(false); stopProgress();
+}
+
+function onStateChange(e) {
+  document.getElementById('now-title').style.color = "#0f0f0f";
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true); startProgress(); renderList();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false); stopProgress(); renderList();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false); stopProgress(); nextSong();
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  currentIdx = idx;
+  document.getElementById('now-title').textContent = SONGS[idx].name;
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+  renderList();
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { if(SONGS.length > 0) playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+  else player.playVideo();
+}
+
+function nextSong() { if (SONGS.length > 0) playSong((currentIdx + 1) % SONGS.length); }
+function prevSong() { if (SONGS.length > 0) playSong((currentIdx - 1 + SONGS.length) % SONGS.length); }
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+}
+
+function startProgress() { stopProgress(); progressTimer = setInterval(updateProgress, 500); }
+function stopProgress() { if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0; const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
+}
+
+// เรียกให้วาดรายการ 6 เพลงแรกลงจอทันทีที่เปิดเว็บ
+renderList();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+สิ่งที่อย่าลืมทำก่อนอัปโหลดขึ้น GitHub:
+
+API Key: นำคีย์เดิมของคุณมาใส่แทนคำว่า 'ใส่_API_KEY_ของคุณที่นี่' ในโค้ดด้วยนะครับ
+
+รูปภาพต้นไม้: อย่าลืมเอาไฟล์รูปต้นไม้ที่คุณตัดมา เซฟชื่อว่า icon.png แล้วอัปโหลดไปไว้ในโฟลเดอร์เดียวกันบน GitHub ระบบจะดึงรูปนั้นมาแสดงตรงโลโก้ข้างๆ คำว่า เพลงของเฌอ ให้อัตโนมัติครับ
+
+ปรับปรุงโค้ด มุมบนขวา เพิ่มปุ่มคู่มือ และสร้าง ไฟล์ html เมื่อกดที่ปุ่ม
+
+ในไฟล์ อธิบายวิธีการเพิ่มหน้าเว็บนี้ เป็นแอพ บนโทรศัพท์มือถือ ด้วยการใช้ chrome หรือ safari
+
+คำอธิบาย ขอเป็นขั้นตอน แต่ละหัวข้อ และรูปภาพประกอบ
+
+ไฟล์ HTML คู่มือถูกสร้างเสร็จเรียบร้อยแล้วครับ
+ไอคอน HTML
+ manual 
+HTML
+
+ผมได้ทำการอัปเดตแอปให้เป็น v.0.3.1 โดยเพิ่ม ปุ่มคู่มือ (ไอคอน ℹ️) ไว้ที่มุมขวาบนของหน้าเว็บเรียบร้อยแล้วครับ เมื่อกดที่ปุ่มนี้ ระบบจะสลับไปที่หน้า manual.html ทันที ซึ่งภายในหน้านั้นจะมีคำอธิบายและบล็อกตัวอย่างรูปภาพประกอบให้เสร็จสรรพเลยครับ
+
+สิ่งที่คุณต้องทำ:
+
+นำโค้ดด้านล่างนี้ ไปวางทับในไฟล์ index.html
+
+นำโค้ดไฟล์ manual.html ที่ผมสร้างไว้ให้ (สามารถดูและก๊อปปี้จากไฟล์ที่แนบมาด้านบนได้เลยครับ) นำไปอัปโหลดขึ้น GitHub ในโฟลเดอร์เดียวกันกับ index.html ครับ
+
+โค้ด index.html อัปเดตใหม่ (v.0.3.1):
+
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
+<title>🎵 เพลงของเฌอ v.0.3.1</title>
+<style>
+  /* Reset & Base */
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #0f0f0f; padding-bottom: 90px; user-select: none; }
+  
+  /* Header & Search */
+  .header { position: sticky; top: 0; background: #fff; z-index: 10; padding: 16px 16px; border-bottom: 1px solid #e5e5e5; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+  .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+  .top-bar { display: flex; align-items: center; gap: 12px; }
+  
+  /* โลโก้ และ ชื่อแอป แบบใหม่ */
+  .app-logo-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+  .app-title { display: flex; align-items: baseline; gap: 8px; }
+  .title-text {
+    background: linear-gradient(90deg, #5D9CEC, #FFCE54, #FC6E51);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 26px;
+    letter-spacing: -0.5px;
+  }
+  .app-version { font-size: 13px; color: #a0a0a0; font-weight: 600; }
+  
+  /* ปุ่มคู่มือ มุมขวาบน */
+  .manual-btn { display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; background: #f5f5f5; border-radius: 50%; color: #606060; text-decoration: none; transition: background 0.2s; }
+  .manual-btn:active { background: #e5e5e5; }
+  .manual-btn svg { width: 20px; height: 20px; fill: currentColor; }
+
+  .search-container { display: flex; gap: 8px; }
+  .search-box { flex: 1; display: flex; align-items: center; background: #f0f0f0; border-radius: 20px; padding: 8px 16px; height: 44px; }
+  .search-box svg { width: 20px; height: 20px; fill: #606060; margin-right: 10px; }
+  .search-box input { border: none; background: transparent; outline: none; width: 100%; font-family: 'Sarabun', sans-serif; font-size: 16px; }
+  .search-btn { background: #0f0f0f; color: #fff; border: none; border-radius: 20px; padding: 0 18px; font-family: 'Sarabun', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; height: 44px; }
+  .search-btn:active { background: #333; }
+  
+  /* Song List (ขนาดใหญ่ขึ้น 1.5 เท่า) */
+  .song-list { display: flex; flex-direction: column; }
+  .song-item { display: flex; align-items: center; padding: 18px 16px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #f5f5f5; }
+  .song-item:active { background: #f2f2f2; }
+  .song-item.active { background: #fdf5f5; }
+  .song-item.active .song-title { color: #ff0000; }
+  
+  /* Thumbnail styling (ใหญ่ขึ้น) */
+  .song-thumb-img { width: 120px; height: 67px; object-fit: cover; border-radius: 8px; margin-right: 16px; flex-shrink: 0; background: #e5e5e5; }
+  
+  .song-info { flex: 1; overflow: hidden; }
+  .song-title { font-size: 17px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 6px; line-height: 1.35; }
+  .song-meta { font-size: 14px; color: #606060; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Playing Animation */
+  .playing-anim { display: none; align-items: flex-end; gap: 3px; height: 16px; margin-left: 12px; }
+  .song-item.active.playing .playing-anim { display: flex; }
+  .bar { width: 4px; background: #ff0000; animation: bounce 1s infinite ease-in-out; border-radius: 2px; }
+  .bar:nth-child(2) { animation-delay: 0.2s; }
+  .bar:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 100% { height: 5px; } 50% { height: 16px; } }
+
+  /* Mini Player (Bottom) */
+  .mini-player { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; box-shadow: 0 -2px 10px rgba(0,0,0,0.06); z-index: 100; padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid #f0f0f0; }
+  .progress-area { width: 100%; height: 3px; background: #e5e5e5; cursor: pointer; position: relative; }
+  .progress-fill { height: 100%; background: #ff0000; width: 0%; pointer-events: none; transition: width 0.1s linear; }
+  
+  .player-content { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; height: 65px; }
+  .player-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; }
+  .now-title { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #0f0f0f; }
+  .now-time { font-size: 13px; color: #606060; margin-top: 3px; }
+  
+  .player-controls { display: flex; align-items: center; gap: 20px; margin-left: 16px; }
+  .ctrl-btn { background: none; border: none; padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .ctrl-btn svg { width: 30px; height: 30px; fill: #0f0f0f; transition: transform 0.1s; }
+  .ctrl-btn:active svg { transform: scale(0.9); opacity: 0.7; }
+  .ctrl-play svg { width: 36px; height: 36px; }
+
+  /* Footer */
+  .footer { text-align: center; padding: 30px 16px 50px; font-size: 14px; color: #aaa; font-weight: 500; }
+
+  /* Utils */
+  #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
+  .status-msg { text-align: center; padding: 50px 16px; color: #606060; font-size: 16px; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="yt-player"></div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="top-bar">
+      <img src="icon.png" class="app-logo-img" alt="logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'44\' height=\'44\' fill=\'#e5e5e5\'/></svg>'">
+      <div class="app-title">
+        <span class="title-text">เพลงของเฌอ</span>
+        <span class="app-version">v.0.3.1</span>
+      </div>
+    </div>
+    <a href="manual.html" class="manual-btn" title="คู่มือการใช้งาน">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+    </a>
+  </div>
+  
+  <div class="search-container">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input type="text" id="searchInput" placeholder="พิมพ์ชื่อเพลงที่นี่..." onkeypress="handleKeyPress(event)">
+    </div>
+    <button class="search-btn" onclick="searchYouTube()">ค้นหา</button>
+  </div>
+</div>
+
+<div class="song-list" id="songs-list">
+  </div>
+
+<div class="footer">by thpl.me</div>
+
+<div class="mini-player">
+  <div class="progress-area" onclick="seekTo(event)">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="player-content">
+    <div class="player-info">
+      <div class="now-title" id="now-title">ยังไม่ได้เลือกเพลง</div>
+      <div class="now-time" id="now-time"><span id="time-cur">0:00</span> / <span id="time-dur">0:00</span></div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" onclick="prevSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+      </button>
+      <button class="ctrl-btn ctrl-play" onclick="togglePlay()">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+      <button class="ctrl-btn" onclick="nextSong()">
+        <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// 🔴 คำเตือน: คุณต้องนำ API Key ของคุณมาใส่ตรงนี้เหมือนเดิมนะครับ
+// ==========================================
+const YOUTUBE_API_KEY = 'ใส่_API_KEY_ของคุณที่นี่'; 
+
+// 6 เพลงเริ่มต้นที่จะโหลดขึ้นมาทันทีเมื่อเปิดแอป
+const DEFAULT_SONGS = [
+  { id: '0Vsh5wqNKtg', name: 'เบบี้ชาร์ค รวมเพลงเด็กสนุกๆ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/0Vsh5wqNKtg/mqdefault.jpg' },
+  { id: 'xLzLnw7S05c', name: 'สำรวจทะเล และผองเพื่อน', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/xLzLnw7S05c/mqdefault.jpg' },
+  { id: 'O7hFFxU56gE', name: 'กระต่ายน้อยน่ารัก', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/O7hFFxU56gE/mqdefault.jpg' },
+  { id: '2ckUJZYg1Js', name: 'ไปเที่ยวสวนสนุกกันเถอะ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/2ckUJZYg1Js/mqdefault.jpg' },
+  { id: 'HXN2aQ1IZHQ', name: 'สายรุ้ง 7 สี', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/HXN2aQ1IZHQ/mqdefault.jpg' },
+  { id: '1Mb92XPCGSo', name: 'ม้าหมุนดนตรี', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/1Mb92XPCGSo/mqdefault.jpg' }
+];
+
+let SONGS = [...DEFAULT_SONGS];
+let player = null;
+let currentIdx = -1;
+let isPlaying = false;
+let progressTimer = null;
+
+// กด Enter เพื่อค้นหา
+function handleKeyPress(e) {
+  if (e.key === 'Enter') searchYouTube();
+}
+
+// ระบบค้นหา
+async function searchYouTube() {
+  const query = document.getElementById('searchInput').value.trim();
+  const listEl = document.getElementById('songs-list');
+  
+  if (!query) {
+    SONGS = [...DEFAULT_SONGS];
+    renderList();
+    return;
+  }
+
+  listEl.innerHTML = '<div class="status-msg">กำลังค้นหา... ⏳</div>';
+
+  if (YOUTUBE_API_KEY === 'ใส่_API_KEY_ของคุณที่นี่') {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">กรุณาใส่ API Key ในโค้ดก่อนใช้งานการค้นหาครับ 🚨</div>';
+    return;
+  }
+
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&q=${encodeURIComponent(query)}&type=video&key=${YOUTUBE_API_KEY}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.error) {
+      listEl.innerHTML = `<div class="status-msg" style="color:red;">Error: ${data.error.message}</div>`;
+      return;
+    }
+
+    if (data.items && data.items.length > 0) {
+      SONGS = data.items.map(item => ({
+        id: item.id.videoId,
+        name: decodeHTML(item.snippet.title),
+        channel: decodeHTML(item.snippet.channelTitle),
+        thumb: item.snippet.thumbnails.medium.url
+      }));
+      renderList();
+    } else {
+      listEl.innerHTML = '<div class="status-msg">ไม่พบเพลงที่คุณหา 🥺</div>';
+    }
+  } catch (error) {
+    listEl.innerHTML = '<div class="status-msg" style="color:red;">ระบบค้นหามีปัญหา โปรดลองใหม่</div>';
+  }
+}
+
+// วาดรายการเพลงบนหน้าจอ
+function renderList() {
+  const list = document.getElementById('songs-list');
+  list.innerHTML = SONGS.map((s, i) => `
+    <div class="song-item ${currentIdx === i ? 'active' : ''} ${currentIdx === i && isPlaying ? 'playing' : ''}" onclick="playSong(${i})">
+      <img src="${s.thumb}" class="song-thumb-img" alt="thumbnail">
+      <div class="song-info">
+        <div class="song-title">${s.name}</div>
+        <div class="song-meta">${s.channel}</div>
+      </div>
+      <div class="playing-anim">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function decodeHTML(html) {
+  const txt = document.createElement("textarea");
+  txt.innerHTML = html;
+  return txt.value;
+}
+
+// ==========================================
+// ส่วนของการเล่นเพลง (IFrame API) 
+// ==========================================
+window.onYouTubeIframeAPIReady = function () {
+  player = new YT.Player('yt-player', {
+    height: '1', width: '1', videoId: '',
+    playerVars: { autoplay: 0, controls: 0, disablekb: 1, fs: 0, iv_load_policy: 3, modestbranding: 1, rel: 0 },
+    events: { onReady: onPlayerReady, onStateChange: onStateChange, onError: onPlayerError }
+  });
+};
+
+function onPlayerReady(e) { player.setVolume(100); }
+
+function onPlayerError(e) {
+  document.getElementById('now-title').textContent = "เล่นไม่ได้ (ติดลิขสิทธิ์ช่อง)";
+  document.getElementById('now-title').style.color = "#ff0000";
+  setPlayingState(false); stopProgress();
+}
+
+function onStateChange(e) {
+  document.getElementById('now-title').style.color = "#0f0f0f";
+  if (e.data === YT.PlayerState.PLAYING) {
+    setPlayingState(true); startProgress(); renderList();
+  } else if (e.data === YT.PlayerState.PAUSED) {
+    setPlayingState(false); stopProgress(); renderList();
+  } else if (e.data === YT.PlayerState.ENDED) {
+    setPlayingState(false); stopProgress(); nextSong();
+  }
+}
+
+function playSong(idx) {
+  if (!player || !player.loadVideoById) return;
+  currentIdx = idx;
+  document.getElementById('now-title').textContent = SONGS[idx].name;
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('time-cur').textContent = '0:00';
+  document.getElementById('time-dur').textContent = '0:00';
+  player.loadVideoById(SONGS[idx].id);
+  renderList();
+}
+
+function togglePlay() {
+  if (!player || !player.getPlayerState) return;
+  if (currentIdx === -1) { if(SONGS.length > 0) playSong(0); return; }
+  const state = player.getPlayerState();
+  if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+  else player.playVideo();
+}
+
+function nextSong() { if (SONGS.length > 0) playSong((currentIdx + 1) % SONGS.length); }
+function prevSong() { if (SONGS.length > 0) playSong((currentIdx - 1 + SONGS.length) % SONGS.length); }
+
+function setPlayingState(playing) {
+  isPlaying = playing;
+  document.getElementById('icon-play').style.display = playing ? 'none' : 'block';
+  document.getElementById('icon-pause').style.display = playing ? 'block' : 'none';
+}
+
+function startProgress() { stopProgress(); progressTimer = setInterval(updateProgress, 500); }
+function stopProgress() { if (progressTimer) { clearInterval(progressTimer); progressTimer = null; } }
+
+function updateProgress() {
+  if (!player || !player.getDuration) return;
+  const dur = player.getDuration() || 0; const cur = player.getCurrentTime() || 0;
+  if (dur > 0) {
+    document.getElementById('progress-fill').style.width = ((cur / dur) * 100).toFixed(1) + '%';
+    document.getElementById('time-cur').textContent = fmtTime(cur);
+    document.getElementById('time-dur').textContent = fmtTime(dur);
+  }
+}
+
+function fmtTime(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60); return m + ':' + (sec < 10 ? '0' : '') + sec; }
+
+function seekTo(e) {
+  if (!player || !player.getDuration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const dur = player.getDuration() || 0;
+  if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
+}
+
+renderList();
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+
+
+
+
+ระบบไม่ได้ใช้แชท Dr.jelfc ของคุณในการปรับปรุงโมเดลของเรา Gemini เป็น AI และอาจทำผิดพลาดได้ ความเป็นส่วนตัวของคุณกับ Geminiเปิดในหน้าต่างใหม่
+
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>คู่มือการติดตั้งแอป เพลงของเฌอ</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sarabun', sans-serif; background: #fafafa; color: #333; line-height: 1.6; padding: 20px; }
+  .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+  h1 { text-align: center; color: #FC6E51; margin-bottom: 30px; font-size: 22px; }
+  h2 { display: flex; align-items: center; gap: 10px; font-size: 18px; margin-top: 30px; color: #0f0f0f; border-left: 4px solid #FFCE54; padding-left: 10px; }
+  .step-list { margin-top: 15px; list-style: none; }
+  .step-item { margin-bottom: 25px; }
+  .step-number { font-weight: bold; color: #ff0000; margin-right: 5px; }
+  .img-box { width: 100%; background: #f0f0f0; border: 1px dashed #ccc; border-radius: 12px; margin-top: 10px; display: flex; align-items: center; justify-content: center; color: #888; font-size: 14px; padding: 20px; text-align: center; }
+  .btn-back { display: block; width: 100%; padding: 15px; background: #0f0f0f; color: #fff; text-decoration: none; text-align: center; border-radius: 12px; font-weight: 600; margin-top: 40px; }
+  .icon-svg { width: 24px; height: 24px; vertical-align: middle; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+  <h1>คู่มือการติดตั้งแอปบนมือถือ</h1>
+
+  <!-- iOS Section -->
+  <h2>
+    <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.1 2.48-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.24-1.99 1.1-3.15-1.04.04-2.3.69-3.05 1.52-.67.79-1.25 1.98-1.11 3.1 1.16.09 2.33-.64 3.06-1.47z"/></svg>
+    สำหรับ iPhone (Safari)
+  </h2>
+  <div class="step-list">
+    <div class="step-item">
+      <p><span class="step-number">1.</span> เปิดเว็บด้วยเบราว์เซอร์ <strong>Safari</strong> แล้วกดปุ่ม <strong>"แชร์" (Share)</strong> ที่แถบด้านล่าง</p>
+      <div class="img-box">
+        [ รูปภาพ: ปุ่มสี่เหลี่ยมที่มีลูกศรชี้ขึ้นที่แถบล่างสุดของจอ ]
+      </div>
+    </div>
+    <div class="step-item">
+      <p><span class="step-number">2.</span> เลื่อนลงมาด้านล่างแล้วเลือกเมนู <strong>"เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen)</strong></p>
+      <div class="img-box">
+        [ รูปภาพ: รายการเมนูที่มีไอคอนเครื่องหมายบวกในกรอบสี่เหลี่ยม ]
+      </div>
+    </div>
+    <div class="step-item">
+      <p><span class="step-number">3.</span> ตรวจสอบชื่อแอปและกดปุ่ม <strong>"เพิ่ม" (Add)</strong> ที่มุมขวาบน</p>
+      <div class="img-box">
+        [ รูปภาพ: หน้าต่างยืนยันชื่อแอปและไอคอนต้นไม้ ]
+      </div>
+    </div>
+  </div>
+
+  <!-- Android Section -->
+  <h2>
+    <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.523 15.3414C18.2574 15.3414 18.8524 14.7464 18.8524 14.012C18.8524 13.2776 18.2574 12.6826 17.523 12.6826C16.7885 12.6826 16.1935 13.2776 16.1935 14.012C16.1935 14.7464 16.7885 15.3414 17.523 15.3414ZM6.47614 15.3414C7.21054 15.3414 7.80554 14.7464 7.80554 14.012C7.80554 13.2776 7.21054 12.6826 6.47614 12.6826C5.74175 12.6826 5.14675 13.2776 5.14675 14.012C5.14675 14.7464 5.74175 15.3414 6.47614 15.3414ZM17.9044 11.2334L19.7891 7.97343C19.9291 7.73111 19.8465 7.42232 19.6042 7.2823C19.3619 7.14227 19.0531 7.22485 18.9131 7.46717L17.0003 10.7788C15.5494 10.1171 13.9213 9.74976 12 9.74976C10.0787 9.74976 8.45055 10.1171 6.99966 10.7788L5.08691 7.46717C4.94688 7.22485 4.63809 7.14227 4.39577 7.2823C4.15345 7.42232 4.07087 7.73111 4.2109 7.97343L6.09559 11.2334C3.06459 12.8719 1 16.0354 1 19.7498H23C23 16.0354 20.9354 12.8719 17.9044 11.2334Z"/></svg>
+    สำหรับ Android (Chrome)
+  </h2>
+  <div class="step-list">
+    <div class="step-item">
+      <p><span class="step-number">1.</span> เปิดเว็บด้วยเบราว์เซอร์ <strong>Chrome</strong> แล้วกดปุ่ม <strong>"เมนู" (จุด 3 จุด)</strong> ที่มุมขวาบน</p>
+      <div class="img-box">
+        [ รูปภาพ: จุดสามจุดเรียงในแนวตั้งที่มุมขวาบนของเบราว์เซอร์ ]
+      </div>
+    </div>
+    <div class="step-item">
+      <p><span class="step-number">2.</span> เลือกเมนู <strong>"เพิ่มลงในหน้าจอหลัก" (Add to Home screen)</strong></p>
+      <div class="img-box">
+        [ รูปภาพ: รายการเมนูที่มีข้อความ Install app หรือ Add to Home screen ]
+      </div>
+    </div>
+    <div class="step-item">
+      <p><span class="step-number">3.</span> กดปุ่ม <strong>"เพิ่ม" (Add)</strong> เพื่อยืนยันการติดตั้ง</p>
+      <div class="img-box">
+        [ รูปภาพ: หน้าต่างเล็กๆ เด้งขึ้นมาให้กดปุ่ม Install หรือ Add ]
+      </div>
+    </div>
+  </div>
+
+  <a href="index.html" class="btn-back">กลับไปหน้าหลัก</a>
+</div>
+
+</body>
+</html>
