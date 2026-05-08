@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="เพลงของเฌอ">
+<link rel="manifest" href="manifest.json">
+<title>🎵 เพลงของเฌอ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Sarabun', sans-serif; background: #FFF5EC; min-height: 100vh; user-select: none; }
+.app { max-width: 420px; margin: 0 auto; padding: 20px 16px 48px; }
+
+.header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.header-title { font-size: 24px; font-weight: 800; color: #C45000; }
+
+.now-playing {
+  background: #fff; border-radius: 24px;
+  border: 1.5px solid #FFD8B8; padding: 24px 20px 18px;
+  margin-bottom: 20px; text-align: center;
+  box-shadow: 0 2px 16px rgba(200,80,0,.07);
+}
+.album-art {
+  width: 96px; height: 96px; border-radius: 50%;
+  background: #FFE8D0; margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px;
+}
+.album-art.spin { animation: spin 4s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.now-title {
+  font-size: 16px; font-weight: 700; color: #C45000;
+  margin-bottom: 4px; min-height: 24px; padding: 0 8px; line-height: 1.35;
+}
+.now-status { font-size: 13px; color: #E8906A; margin-bottom: 16px; }
+
+.controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.btn-skip {
+  width: 50px; height: 50px; border-radius: 50%;
+  border: 1.5px solid #FFD8B8; background: #FFF5EC;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 22px; transition: transform .12s;
+}
+.btn-skip:active { transform: scale(.9); background: #FFD8B8; }
+.btn-play {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: #FF7A30; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; box-shadow: 0 4px 16px rgba(255,122,48,.4);
+  transition: transform .12s;
+}
+.btn-play:active { transform: scale(.92); }
+
+.prog-row { margin-top: 16px; display: flex; align-items: center; gap: 8px; }
+.t { font-size: 12px; color: #E8906A; font-weight: 600; min-width: 34px; }
+.t.r { text-align: right; }
+.prog-bar { flex: 1; height: 6px; background: #FFD8B8; border-radius: 99px; cursor: pointer; }
+.prog-fill { height: 100%; background: #FF7A30; border-radius: 99px; width: 0%; transition: width .4s linear; pointer-events: none; }
+
+.sec-title {
+  font-size: 12px; font-weight: 700; color: #C45000;
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.song-card {
+  background: #fff; border: 1.5px solid #FFD8B8;
+  border-radius: 18px; padding: 16px 10px 14px;
+  text-align: center; cursor: pointer; transition: transform .12s; position: relative;
+}
+.song-card:active { transform: scale(.95); }
+.song-card.active { border: 2px solid #FF7A30; background: #FFF0E6; }
+.song-card.active::after {
+  content: ''; position: absolute; top: 8px; right: 8px;
+  width: 8px; height: 8px; border-radius: 50%; background: #FF7A30;
+  animation: blink 1.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
+.s-emoji { font-size: 32px; margin-bottom: 8px; }
+.s-name {
+  font-size: 12px; font-weight: 700; color: #C45000; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.vol-card {
+  background: #fff; border: 1.5px solid #FFD8B8;
+  border-radius: 18px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+}
+.vol-label { font-size: 13px; font-weight: 700; color: #C45000; }
+input[type=range] {
+  flex: 1; -webkit-appearance: none; height: 6px;
+  border-radius: 99px; background: #FFD8B8; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 22px; height: 22px;
+  border-radius: 50%; background: #FF7A30; cursor: pointer;
+}
+.vol-num { font-size: 13px; font-weight: 700; color: #C45000; min-width: 32px; text-align: right; }
+
+.install-btn {
+  display: none; width: 100%; padding: 14px;
+  background: #FF7A30; color: #fff; border: none; border-radius: 18px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  margin-bottom: 12px; font-family: 'Sarabun', sans-serif;
+}
+</style>
+</head>
+<body>
+<audio id="audio" preload="auto"></audio>
+<div class="app">
+  <div class="header">
+    <span style="font-size:28px">🎵</span>
+    <span class="header-title">เพลงของเฌอ</span>
+  </div>
+
+  <button class="install-btn" id="install-btn" onclick="installApp()">
+    📲 ติดตั้งแอพไว้บนหน้าจอ
+  </button>
+
+  <div class="now-playing">
+    <div class="album-art" id="art">🎶</div>
+    <div class="now-title" id="np-title">กดเพลงด้านล่างเพื่อเริ่ม</div>
+    <div class="now-status" id="np-status">เลือกเพลงที่ชอบ</div>
+    <div class="controls">
+      <div class="btn-skip" onclick="prevSong()">⏮</div>
+      <div class="btn-play" onclick="togglePlay()"><span id="play-icon">▶️</span></div>
+      <div class="btn-skip" onclick="nextSong()">⏭</div>
+    </div>
+    <div class="prog-row">
+      <span class="t" id="t-cur">0:00</span>
+      <div class="prog-bar" id="prog-bar"><div class="prog-fill" id="prog-fill"></div></div>
+      <span class="t r" id="t-dur">0:00</span>
+    </div>
+  </div>
+
+  <p class="sec-title">เลือกเพลง</p>
+  <div class="grid" id="grid"></div>
+
+  <div class="vol-card">
+    <span style="font-size:20px">🔊</span>
+    <span class="vol-label">เสียง</span>
+    <input type="range" min="0" max="1" step="0.01" value="0.8" id="vol" oninput="setVol(this.value)">
+    <span class="vol-num" id="vol-n">80%</span>
+  </div>
+</div>
+
+<script>
+const SONGS = [
+  { name:'ลูกฉลามเล่นเป็นคุณหมอ', file:'song01.mp3', emoji:'🦈' },
+  { name:'มาเต้นกับเบบี้ชาร์ค',    file:'song02.mp3', emoji:'🕺' },
+  { name:'ซ่อนแอบที่คลินิกหมอฟัน', file:'song03.mp3', emoji:'🦷' },
+  { name:'เบบี้ชาร์คกับผองเพื่อน', file:'song04.mp3', emoji:'🐠' },
+  { name:'Monsters in the Dark',     file:'song05.mp3', emoji:'👻' },
+  { name:'Happy Birthday to You',    file:'song06.mp3', emoji:'🎂' },
+];
+
+const audio = document.getElementById('audio');
+let cur = -1;
+
+const grid = document.getElementById('grid');
+SONGS.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'song-card';
+  d.id = 'c' + i;
+  d.innerHTML = `<div class="s-emoji">${s.emoji}</div><div class="s-name">${s.name}</div>`;
+  d.onclick = () => playSong(i);
+  grid.appendChild(d);
+});
+
+audio.addEventListener('timeupdate', () => {
+  const d = audio.duration || 0, c = audio.currentTime || 0;
+  if (d > 0) {
+    document.getElementById('prog-fill').style.width = (c/d*100).toFixed(1) + '%';
+    document.getElementById('t-cur').textContent = fmt(c);
+    document.getElementById('t-dur').textContent = fmt(d);
+  }
+});
+audio.addEventListener('ended',   () => nextSong());
+audio.addEventListener('playing', () => {
+  document.getElementById('play-icon').textContent = '⏸️';
+  document.getElementById('art').classList.add('spin');
+  document.getElementById('np-status').textContent = 'กำลังเล่น ♪';
+});
+audio.addEventListener('pause', () => {
+  document.getElementById('play-icon').textContent = '▶️';
+  document.getElementById('art').classList.remove('spin');
+  document.getElementById('np-status').textContent = 'หยุดชั่วคราว';
+});
+audio.addEventListener('waiting', () => {
+  document.getElementById('np-status').textContent = 'กำลังโหลด...';
+});
+
+document.getElementById('prog-bar').addEventListener('click', e => {
+  if (!audio.duration) return;
+  const r = e.currentTarget.getBoundingClientRect();
+  audio.currentTime = ((e.clientX - r.left) / r.width) * audio.duration;
+});
+
+function playSong(idx) {
+  document.querySelectorAll('.song-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('c' + idx).classList.add('active');
+  cur = idx;
+  const s = SONGS[idx];
+  document.getElementById('art').textContent = s.emoji;
+  document.getElementById('art').classList.remove('spin');
+  document.getElementById('np-title').textContent = s.name;
+  document.getElementById('np-status').textContent = 'กำลังโหลด...';
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('t-cur').textContent = '0:00';
+  document.getElementById('t-dur').textContent = '0:00';
+  audio.src = 'songs/' + s.file;
+  audio.volume = parseFloat(document.getElementById('vol').value);
+  audio.play();
+  setMediaSession(s);
+}
+
+function togglePlay() {
+  if (cur === -1) { playSong(0); return; }
+  audio.paused ? audio.play() : audio.pause();
+}
+function nextSong() { playSong((cur + 1) % SONGS.length); }
+function prevSong() { playSong((cur - 1 + SONGS.length) % SONGS.length); }
+function setVol(v) {
+  audio.volume = v;
+  document.getElementById('vol-n').textContent = Math.round(v * 100) + '%';
+}
+function fmt(s) {
+  return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+}
+
+function setMediaSession(s) {
+  if (!('mediaSession' in navigator)) return;
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: s.name, artist: 'เพลงของเฌอ',
+    artwork: [{ src: 'icon.png', sizes: '512x512', type: 'image/png' }]
+  });
+  navigator.mediaSession.setActionHandler('play',          () => audio.play());
+  navigator.mediaSession.setActionHandler('pause',         () => audio.pause());
+  navigator.mediaSession.setActionHandler('nexttrack',     () => nextSong());
+  navigator.mediaSession.setActionHandler('previoustrack', () => prevSong());
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  document.getElementById('install-btn').style.display = 'block';
+});
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    document.getElementById('install-btn').style.display = 'none';
+    deferredPrompt = null;
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
