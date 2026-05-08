@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#ffffff" id="themeColorMeta">
 
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 
-<title>🎵 เพลงของเฌอ v.0.4.0</title>
+<title>🎵 เพลงของเฌอ v.0.4.1</title>
 <style>
   /* Reset & Base */
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -21,6 +21,7 @@
   .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
   .top-bar { display: flex; align-items: center; gap: 12px; }
   
+  /* โลโก้ และ ชื่อแอป */
   .app-logo-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
   .app-title { display: flex; align-items: baseline; gap: 8px; }
   .title-text { background: linear-gradient(90deg, #5D9CEC, #FFCE54, #FC6E51); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
@@ -79,19 +80,20 @@
   .footer { text-align: center; padding: 30px 16px 50px; font-size: 14px; color: #aaa; font-weight: 500; }
 
   /* ==========================================
-     OLED Black Screen Mode (กันเด็กกด + ประหยัดแบต)
+     OLED Black Screen Mode (อัปเดตใหม่ คลุมมิดขอบจอ)
      ========================================== */
   .black-screen {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    width: 100vw; height: 100vh; height: 100dvh;
     background: #000000; z-index: 99999;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
   }
   .black-screen.active { opacity: 1; pointer-events: auto; }
-  /* ใช้สีเทาเข้มมากๆ เพื่อป้องกันปัญหาหน้าจอ Burn-in และประหยัดไฟที่สุด */
   .black-screen-text { color: #222222; font-size: 14px; text-align: center; margin-top: 15px; font-weight: 600; }
   .black-screen-icon { font-size: 40px; color: #222222; }
 
+  /* Hidden YouTube player */
   #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
   .status-msg { text-align: center; padding: 50px 16px; color: #606060; font-size: 16px; }
 </style>
@@ -113,7 +115,7 @@
       <img src="icon.png" class="app-logo-img" alt="logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'44\' height=\'44\' fill=\'#e5e5e5\'/></svg>'">
       <div class="app-title">
         <span class="title-text">เพลงของเฌอ</span>
-        <span class="app-version">v.0.4.0</span>
+        <span class="app-version">v.0.4.1</span>
       </div>
     </div>
     
@@ -166,8 +168,10 @@
 </div>
 
 <script>
-// 🔴 ใส่ API Key ของคุณที่นี่
-const YOUTUBE_API_KEY = 'AIzaSyCfnKQuwgtctUTFZRmwyPD66XHEgvAGETg';
+// ==========================================
+// 🔴 คำเตือน: นำ API Key ของคุณมาใส่ตรงนี้นะครับ
+// ==========================================
+const YOUTUBE_API_KEY = 'AIzaSyCfnKQuwgtctUTFZRmwyPD66XHEgvAGETg'; 
 
 const DEFAULT_SONGS = [
   { id: '0Vsh5wqNKtg', name: 'เบบี้ชาร์ค รวมเพลงเด็กสนุกๆ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/0Vsh5wqNKtg/mqdefault.jpg' },
@@ -183,7 +187,7 @@ let player = null;
 let currentIdx = -1;
 let isPlaying = false;
 let progressTimer = null;
-let wakeLock = null; // ตัวแปรสำหรับคุมไม่ให้จอดับ
+let wakeLock = null;
 
 // --- ระบบจอดำ และ Wake Lock ---
 async function requestWakeLock() {
@@ -204,11 +208,16 @@ function releaseWakeLock() {
 
 function toggleBlackScreen() {
   const bs = document.getElementById('blackScreen');
+  const themeMeta = document.getElementById('themeColorMeta');
+  
   if (bs.classList.contains('active')) {
     bs.classList.remove('active'); // ออกจากจอดำ
+    if(themeMeta) themeMeta.setAttribute('content', '#ffffff');
+    releaseWakeLock(); 
   } else {
     bs.classList.add('active'); // เข้าจอดำ
-    requestWakeLock(); // พยายามล็อกหน้าจอไม่ให้ดับ
+    if(themeMeta) themeMeta.setAttribute('content', '#000000');
+    requestWakeLock(); 
   }
 }
 
@@ -270,7 +279,7 @@ function onPlayerError(e) {
 function onStateChange(e) {
   document.getElementById('now-title').style.color = "#0f0f0f";
   if (e.data === YT.PlayerState.PLAYING) {
-    setPlayingState(true); startProgress(); renderList(); requestWakeLock(); // ล็อกจอตอนเริ่มเล่น
+    setPlayingState(true); startProgress(); renderList(); requestWakeLock(); 
   } else if (e.data === YT.PlayerState.PAUSED) {
     setPlayingState(false); stopProgress(); renderList(); releaseWakeLock();
   } else if (e.data === YT.PlayerState.ENDED) {
