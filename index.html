@@ -223,43 +223,42 @@
 const YOUTUBE_API_KEY = 'AIzaSyCfnKQuwgtctUTFZRmwyPD66XHEgvAGETg'; 
 
 // ข้อมูลเพลง 3 หมวดหมู่ (หมวดละ 10 เพลง)
-// หมายเหตุ: คุณสามารถเปลี่ยนรหัส id ด้านล่างให้เป็นเพลงที่ต้องการได้เลยครับ
 const CATEGORIES = {
   'shark': [
-    { id: '0Vsh5wqNKtg', name: 'เบบี้ชาร์ค รวมฮิต 1', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/0Vsh5wqNKtg/mqdefault.jpg' },
-    { id: 'xLzLnw7S05c', name: 'ฉลามน้อยผจญภัย', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/xLzLnw7S05c/mqdefault.jpg' },
-    { id: 'jfKfPfyJRdk', name: 'เต้นกับลูกฉลาม', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/jfKfPfyJRdk/mqdefault.jpg' },
-    { id: 'K4DyBUG242c', name: 'ครอบครัวฉลาม', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/K4DyBUG242c/mqdefault.jpg' },
-    { id: 'O7hFFxU56gE', name: 'ลูกฉลามสีรุ้ง', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/O7hFFxU56gE/mqdefault.jpg' },
-    { id: '2ckUJZYg1Js', name: 'ฉลามน้อยในอวกาศ', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/2ckUJZYg1Js/mqdefault.jpg' },
-    { id: 'HXN2aQ1IZHQ', name: 'ลูกฉลามฮาโลวีน', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/HXN2aQ1IZHQ/mqdefault.jpg' },
-    { id: '1Mb92XPCGSo', name: 'ลูกฉลามคริสต์มาส', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/1Mb92XPCGSo/mqdefault.jpg' },
-    { id: 'YYJveqE92x8', name: 'ฉลามน้อยแสนสนุก', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/YYJveqE92x8/mqdefault.jpg' },
-    { id: 'fXF7l_RBqeE', name: 'เบบี้ชาร์ค แดนซ์', channel: 'พิงค์ฟอง', thumb: 'https://i.ytimg.com/vi/fXF7l_RBqeE/mqdefault.jpg' }
+    { id: 'XqZsoesa55w', name: 'เบบี้ชาร์ค แดนซ์ (ยอดฮิต)', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/XqZsoesa55w/mqdefault.jpg' },
+    { id: '1FXkXvS8uzc', name: 'เพลงเบบี้ชาร์ค รวมฮิต', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/1FXkXvS8uzc/mqdefault.jpg' },
+    { id: 'SFY0tHZg0CI', name: 'ลูกฉลามสีสัน (เรียนรู้สี)', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/SFY0tHZg0CI/mqdefault.jpg' },
+    { id: 'efsLE1SaCxI', name: 'เล่นซ่อนหากับครอบครัวฉลาม', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/efsLE1SaCxI/mqdefault.jpg' },
+    { id: 'QR9eMDZZvI8', name: 'ลูกฉลามเล่นเป็นคุณหมอ', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/QR9eMDZZvI8/mqdefault.jpg' },
+    { id: 'NPzATWG7eHk', name: 'รวมฮิต เบบี้ชาร์ค 100 นาที', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/NPzATWG7eHk/mqdefault.jpg' },
+    { id: 'aYQwz3ZudVA', name: 'มาเต้นกับเบบี้ชาร์คกันเถอะ', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/aYQwz3ZudVA/mqdefault.jpg' },
+    { id: 'Rs6eoZbxakI', name: 'เร็วขึ้น เบบี้ชาร์ค', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/Rs6eoZbxakI/mqdefault.jpg' },
+    { id: 'qMMPwIbxk54', name: 'Baby Shark (Thai Version)', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/qMMPwIbxk54/mqdefault.jpg' },
+    { id: 'Lgv-dyE185w', name: 'ลูกฉลามและรถโรงเรียน', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/Lgv-dyE185w/mqdefault.jpg' }
   ],
   'baby': [
-    { id: 'YYJveqE92x8', name: 'เพลงเด็กเบบี้ 1', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/YYJveqE92x8/mqdefault.jpg' },
-    { id: '1Mb92XPCGSo', name: 'เด็กน้อยน่ารัก', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/1Mb92XPCGSo/mqdefault.jpg' },
-    { id: 'HXN2aQ1IZHQ', name: 'ตื่นนอนตอนเช้า', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/HXN2aQ1IZHQ/mqdefault.jpg' },
-    { id: '2ckUJZYg1Js', name: 'อาบน้ำสบายตัว', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/2ckUJZYg1Js/mqdefault.jpg' },
-    { id: 'O7hFFxU56gE', name: 'กินข้าวเก่งจัง', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/O7hFFxU56gE/mqdefault.jpg' },
-    { id: 'K4DyBUG242c', name: 'แปรงฟันกันเถอะ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/K4DyBUG242c/mqdefault.jpg' },
-    { id: 'jfKfPfyJRdk', name: 'เด็กดีมีมารยาท', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/jfKfPfyJRdk/mqdefault.jpg' },
-    { id: 'xLzLnw7S05c', name: 'ก เอ๋ย ก ไก่', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/xLzLnw7S05c/mqdefault.jpg' },
-    { id: '0Vsh5wqNKtg', name: 'เอบีซี แสนสนุก', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/0Vsh5wqNKtg/mqdefault.jpg' },
-    { id: 'fXF7l_RBqeE', name: 'กล่อมนอนเบบี้', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/fXF7l_RBqeE/mqdefault.jpg' }
+    { id: 'N9RVaXa8g14', name: 'เพลง ก เอ๋ย ก ไก่ แบบดั้งเดิม', channel: 'เพลงเด็กอนุบาล', thumb: 'https://i.ytimg.com/vi/N9RVaXa8g14/mqdefault.jpg' },
+    { id: 'U7afIfp4r6c', name: 'เต่า เอ๋ย เต่า เต่ามันสี่ขา', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/U7afIfp4r6c/mqdefault.jpg' },
+    { id: '-F1KVb9JQfA', name: 'Five Little Ducks เป็ด 5 ตัว', channel: 'Kiddy Melody', thumb: 'https://i.ytimg.com/vi/-F1KVb9JQfA/mqdefault.jpg' },
+    { id: 'wtVyLAjr8eQ', name: 'หนอนผีเสื้อ + รวมฮิต 30 นาที', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/wtVyLAjr8eQ/mqdefault.jpg' },
+    { id: 'U6-GZAKzi4M', name: 'ก เอ๋ย ก ไก่ ฟังเพลินๆ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/U6-GZAKzi4M/mqdefault.jpg' },
+    { id: '6yQPohLDo44', name: 'เพลง ครอบครัว ก ไก่', channel: 'KidsMeSong', thumb: 'https://i.ytimg.com/vi/6yQPohLDo44/mqdefault.jpg' },
+    { id: 'Q-7lZz-f2Qo', name: 'ช้าง ช้าง ช้าง (รวมฮิต)', channel: 'เพลงเด็กอนุบาล', thumb: 'https://i.ytimg.com/vi/Q-7lZz-f2Qo/mqdefault.jpg' },
+    { id: '8mJb_m4EaEE', name: 'เป็ดอาบน้ำในคลอง ก้าบ ก้าบ', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/8mJb_m4EaEE/mqdefault.jpg' },
+    { id: '2VvX1qD3xGg', name: 'จับปูดำ ขยำปูนา', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/2VvX1qD3xGg/mqdefault.jpg' },
+    { id: '1n5Rtyt1l1g', name: 'แมงมุมลายตัวนั้น', channel: 'เพลงเด็ก', thumb: 'https://i.ytimg.com/vi/1n5Rtyt1l1g/mqdefault.jpg' }
   ],
   'trex': [
-    { id: 'fXF7l_RBqeE', name: 'ทีเร็กซ์จอมพลัง', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/fXF7l_RBqeE/mqdefault.jpg' },
-    { id: 'YYJveqE92x8', name: 'ไดโนเสาร์รวมเพื่อน', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/YYJveqE92x8/mqdefault.jpg' },
-    { id: '1Mb92XPCGSo', name: 'เสียงร้องทีเร็กซ์', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/1Mb92XPCGSo/mqdefault.jpg' },
-    { id: 'HXN2aQ1IZHQ', name: 'ไดโนเสาร์กินพืช', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/HXN2aQ1IZHQ/mqdefault.jpg' },
-    { id: '2ckUJZYg1Js', name: 'ไข่ไดโนเสาร์', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/2ckUJZYg1Js/mqdefault.jpg' },
-    { id: 'O7hFFxU56gE', name: 'ทีเร็กซ์เต้นรำ', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/O7hFFxU56gE/mqdefault.jpg' },
-    { id: 'K4DyBUG242c', name: 'ย้อนยุคไดโนเสาร์', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/K4DyBUG242c/mqdefault.jpg' },
-    { id: 'jfKfPfyJRdk', name: 'ฟอสซิลทีเร็กซ์', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/jfKfPfyJRdk/mqdefault.jpg' },
-    { id: 'xLzLnw7S05c', name: 'เพื่อนรักทีเร็กซ์', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/xLzLnw7S05c/mqdefault.jpg' },
-    { id: '0Vsh5wqNKtg', name: 'ราตรีสวัสดิ์ทีเร็กซ์', channel: 'ไดโนเสาร์', thumb: 'https://i.ytimg.com/vi/0Vsh5wqNKtg/mqdefault.jpg' }
+    { id: 'cfhze1Wk0Oc', name: 'เพลงไดโนเสาร์มันๆ', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/cfhze1Wk0Oc/mqdefault.jpg' },
+    { id: 'hmYqW-OToIo', name: 'เพลง ทีเร็กซ์ T-rex', channel: 'Kiddy Melody', thumb: 'https://i.ytimg.com/vi/hmYqW-OToIo/mqdefault.jpg' },
+    { id: 'oY00FvwTYOs', name: 'รวมเพลงไดโนเสาร์ ฮิตยอดนิยม', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/oY00FvwTYOs/mqdefault.jpg' },
+    { id: 'BDL3KQlImPE', name: 'ไดโนเสาร์ ตัวของเจ้านั่นช่างใหญ่', channel: 'KidsMeSong', thumb: 'https://i.ytimg.com/vi/BDL3KQlImPE/mqdefault.jpg' },
+    { id: 'HWhbczGuzwA', name: 'ไทแรนโนซอรัส เร็กซ์ (Bebefinn)', channel: 'Bebefinn', thumb: 'https://i.ytimg.com/vi/HWhbczGuzwA/mqdefault.jpg' },
+    { id: 'Pu_dQL7rnC0', name: 'ดิพโพลโดคัส | เพลงไดโนเสาร์', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/Pu_dQL7rnC0/mqdefault.jpg' },
+    { id: 'w46KYc2vIK0', name: 'พวกไดโนเสาร์ไปที่ใด', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/w46KYc2vIK0/mqdefault.jpg' },
+    { id: 'duxJswkRk0o', name: 'เวโลซีแรปเตอร์ วิดดี้ผจญภัย', channel: 'Mahidol Kids', thumb: 'https://i.ytimg.com/vi/duxJswkRk0o/mqdefault.jpg' },
+    { id: '7mVfU9K_ZWA', name: 'ไดโนจอมป่วน : สวนไดโนเสาร์', channel: 'ThaiPBS', thumb: 'https://i.ytimg.com/vi/7mVfU9K_ZWA/mqdefault.jpg' },
+    { id: '8d407O6jXoA', name: 'ทีรันโนซอรัส เร็กซ์', channel: 'Pinkfong', thumb: 'https://i.ytimg.com/vi/8d407O6jXoA/mqdefault.jpg' }
   ]
 };
 
