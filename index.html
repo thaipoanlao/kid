@@ -522,7 +522,19 @@ function seekTo(e) {
   const rect = e.currentTarget.getBoundingClientRect(); const dur = player.getDuration() || 0;
   if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
 }
-
+// --- ระบบจับการแตะ 2 ครั้ง (Double Tap) สำหรับมือถือ iOS และ Android ---
+let lastTapTime = 0;
+document.getElementById('blackScreen').addEventListener('touchend', function(event) {
+  const currentTime = new Date().getTime();
+  const tapDuration = currentTime - lastTapTime;
+  
+  // ถ้าแตะครั้งที่ 2 ภายในเวลา 400 มิลลิวินาที (0.4 วินาที)
+  if (tapDuration > 0 && tapDuration < 400) {
+    toggleBlackScreen(); // สั่งเปิด/ปิดจอดำ
+    event.preventDefault(); // ป้องกันไม่ให้เบราว์เซอร์เอาการแตะไปทำอย่างอื่น
+  }
+  lastTapTime = currentTime;
+});
 renderList();
 </script>
 <script src="https://www.youtube.com/iframe_api"></script>
