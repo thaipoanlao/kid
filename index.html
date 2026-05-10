@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 
-<title>🎵 เพลงของเฌอ v.0.5.3</title>
+<title>🎵 เพลงของเฌอ v.0.5.4</title>
 <style>
   :root {
     --bg-color: #ffffff;
@@ -79,12 +79,10 @@
   .search-btn { background: #FC6E51; color: #fff; border: none; border-radius: 20px; padding: 0 18px; font-family: 'Sarabun', sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; height: 44px; }
   .search-btn:active { opacity: 0.8; }
   
-  /* Tabs Categories - อัปเดตล็อกกับหน้าจอ แบ่งสัดส่วน 4 ปุ่ม */
   .tabs-container { display: flex; gap: 8px; padding-bottom: 4px; width: 100%; justify-content: space-between; align-items: center; }
   .tab-btn { flex: 1; display: flex; justify-content: center; align-items: center; background: var(--tab-bg); color: var(--tab-text); border: none; padding: 8px 2px; border-radius: 20px; font-family: 'Sarabun', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
   .tab-btn.active { background: var(--tab-active-bg); color: var(--tab-active-text); }
   
-  /* ปุ่มลูกเต๋าขนาดคงที่ */
   .tab-btn.shuffle-btn { flex: none; width: 48px; background: var(--tab-shuffle-bg); color: var(--tab-shuffle-text); font-size: 18px; }
   .tab-btn.shuffle-btn.active { background: var(--tab-active-bg); color: var(--tab-active-text); }
 
@@ -123,6 +121,9 @@
 
   .footer { text-align: center; padding: 30px 16px 50px; font-size: 14px; color: var(--text-muted); font-weight: 500; }
 
+  /* ==========================================
+     แก้ไขหน้าจอสีดำให้สวยขึ้น (ข้อความใหญ่ + สีตรงกัน)
+     ========================================== */
   .black-screen {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     width: 100vw; height: 100vh; height: 100dvh;
@@ -131,8 +132,23 @@
     opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
   }
   .black-screen.active { opacity: 1; pointer-events: auto; }
-  .black-screen-text { color: #222222; font-size: 14px; text-align: center; margin-top: 15px; font-weight: 600; }
-  .black-screen-icon { font-size: 40px; color: #222222; }
+  
+  /* ขยายขนาดตัวหนังสือเป็น 24px */
+  .black-screen-text { 
+    color: #222222; 
+    font-size: 24px; 
+    text-align: center; 
+    margin-top: 24px; 
+    font-weight: 600; 
+    line-height: 1.4;
+  }
+  
+  /* กำหนดให้ไอคอนตรงนี้รับสีเทาเข้มโดยเฉพาะ */
+  .black-screen-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 
   #yt-player { position: absolute; width: 1px; height: 1px; top: -9999px; left: -9999px; pointer-events: none; }
   .status-msg { text-align: center; padding: 50px 16px; color: var(--text-muted); font-size: 16px; }
@@ -145,7 +161,11 @@
 <div id="yt-player"></div>
 
 <div class="black-screen" id="blackScreen" ondblclick="toggleBlackScreen()">
-  <div class="black-screen-icon">🎵</div>
+  <div class="black-screen-icon">
+    <svg viewBox="0 0 24 24" style="width: 80px; height: 80px; fill: #222222;">
+      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+    </svg>
+  </div>
   <div class="black-screen-text">แตะหน้าจอ 2 ครั้งติดกัน<br>เพื่อเปิดจอ</div>
 </div>
 
@@ -155,7 +175,7 @@
       <img src="icon.png" class="app-logo-img" alt="logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'44\' height=\'44\' fill=\'#e5e5e5\'/></svg>'">
       <div class="app-title">
         <span class="title-text">เพลงของเฌอ</span>
-        <span class="app-version">v.0.5.3</span>
+        <span class="app-version">v.0.5.4</span>
       </div>
     </div>
     
@@ -355,12 +375,21 @@ function releaseWakeLock() {
 
 function toggleBlackScreen() {
   const bs = document.getElementById('blackScreen');
+  const themeMeta = document.getElementById('themeColorMeta');
+  
   if (bs.classList.contains('active')) {
     bs.classList.remove('active');
     releaseWakeLock(); 
+    // อัปเดต: พอกดออก คืนค่าสีตามธีมว่าเข้าโหมดมืดอยู่หรือไม่
+    if(themeMeta) {
+      const isDark = document.body.classList.contains('dark-theme');
+      themeMeta.setAttribute('content', isDark ? '#1e1e1e' : '#ffffff');
+    }
   } else {
     bs.classList.add('active');
     requestWakeLock(); 
+    // อัปเดต: พอกดเข้า ให้แถบบนดำสนิททันที
+    if(themeMeta) themeMeta.setAttribute('content', '#000000');
   }
 }
 
