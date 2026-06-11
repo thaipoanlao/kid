@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 
-<title>🎵 เพลงของเฌอ v.0.5.4</title>
+<title>🎵 เพลงของเฌอ v.0.5.5</title>
 <style>
   :root {
     --bg-color: #ffffff;
@@ -62,7 +62,6 @@
     top: 0; 
     background: var(--header-bg); 
     z-index: 10; 
-    /* เพิ่มคำสั่ง calc() และ env() เพื่อหลบ Dynamic Island */
     padding: calc(16px + env(safe-area-inset-top)) 16px 16px 16px; 
     padding-left: calc(16px + env(safe-area-inset-left));
     padding-right: calc(16px + env(safe-area-inset-right));
@@ -106,8 +105,9 @@
   .song-item.active { background: var(--item-active); }
   .song-item.active .song-title { color: #FC6E51; }
   
-  .song-thumb-img { width: 132px; height: 74px; object-fit: cover; border-radius: 8px; margin-right: 18px; flex-shrink: 0; background: var(--border-color); }
-  .song-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; height: 74px; }
+  /* ขยายขนาดรูปปก x1.3 เท่า */
+  .song-thumb-img { width: 172px; height: 96px; object-fit: cover; border-radius: 8px; margin-right: 18px; flex-shrink: 0; background: var(--border-color); }
+  .song-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; height: 96px; }
   
   .song-title { font-size: 19px; font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.35; color: var(--text-color); }
   
@@ -135,9 +135,6 @@
 
   .footer { text-align: center; padding: 30px 16px 50px; font-size: 14px; color: var(--text-muted); font-weight: 500; }
 
-  /* ==========================================
-     แก้ไขหน้าจอสีดำให้สวยขึ้น (ข้อความใหญ่ + สีตรงกัน)
-     ========================================== */
   .black-screen {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     width: 100vw; height: 100vh; height: 100dvh;
@@ -147,7 +144,6 @@
   }
   .black-screen.active { opacity: 1; pointer-events: auto; }
   
-  /* ขยายขนาดตัวหนังสือเป็น 24px */
   .black-screen-text { 
     color: #222222; 
     font-size: 24px; 
@@ -157,7 +153,6 @@
     line-height: 1.4;
   }
   
-  /* กำหนดให้ไอคอนตรงนี้รับสีเทาเข้มโดยเฉพาะ */
   .black-screen-icon {
     display: flex;
     justify-content: center;
@@ -189,7 +184,7 @@
       <img src="icon.png" class="app-logo-img" alt="logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'44\' height=\'44\'><rect width=\'44\' height=\'44\' fill=\'#e5e5e5\'/></svg>'">
       <div class="app-title">
         <span class="title-text">เพลงของเฌอ</span>
-        <span class="app-version">v.0.5.4</span>
+        <span class="app-version">v.0.5.5</span>
       </div>
     </div>
     
@@ -306,6 +301,7 @@ let isPlaying = false;
 let progressTimer = null;
 let wakeLock = null;
 let darkThemeTimer = null;
+let blackScreenTimer = null; // ตัวแปรสำหรับจับเวลาเปิดจอดำ
 
 function loadCategory(catName, btnElement) {
   if(btnElement) {
@@ -371,6 +367,21 @@ function startDarkThemeTimer() {
   }, 300000); 
 }
 
+// ฟังก์ชันเปิดจอดำอัตโนมัติเมื่อครบ 20 นาที
+function startAutoBlackScreenTimer() {
+  clearTimeout(blackScreenTimer);
+  blackScreenTimer = setTimeout(() => {
+    const bs = document.getElementById('blackScreen');
+    const themeMeta = document.getElementById('themeColorMeta');
+    // ถ้าจอดำยังไม่เปิด ให้เปิดมันขึ้นมา
+    if (!bs.classList.contains('active')) {
+      bs.classList.add('active');
+      requestWakeLock();
+      if(themeMeta) themeMeta.setAttribute('content', '#000000');
+    }
+  }, 1200000); // 1,200,000 มิลลิวินาที = 20 นาที
+}
+
 function resetTheme() {
   clearTimeout(darkThemeTimer);
   document.body.classList.remove('dark-theme');
@@ -394,7 +405,6 @@ function toggleBlackScreen() {
   if (bs.classList.contains('active')) {
     bs.classList.remove('active');
     releaseWakeLock(); 
-    // อัปเดต: พอกดออก คืนค่าสีตามธีมว่าเข้าโหมดมืดอยู่หรือไม่
     if(themeMeta) {
       const isDark = document.body.classList.contains('dark-theme');
       themeMeta.setAttribute('content', isDark ? '#1e1e1e' : '#ffffff');
@@ -402,7 +412,6 @@ function toggleBlackScreen() {
   } else {
     bs.classList.add('active');
     requestWakeLock(); 
-    // อัปเดต: พอกดเข้า ให้แถบบนดำสนิททันที
     if(themeMeta) themeMeta.setAttribute('content', '#000000');
   }
 }
@@ -471,9 +480,11 @@ function onStateChange(e) {
   if (e.data === YT.PlayerState.PLAYING) {
     setPlayingState(true); startProgress(); renderList(); requestWakeLock(); 
     startDarkThemeTimer(); 
+    startAutoBlackScreenTimer(); // เริ่มนับเวลา 20 นาทีเพื่อเปิดจอดำ
   } else if (e.data === YT.PlayerState.PAUSED) {
     setPlayingState(false); stopProgress(); renderList(); releaseWakeLock();
     clearTimeout(darkThemeTimer); 
+    clearTimeout(blackScreenTimer); // หยุดจับเวลาเมื่อหยุดเพลง
   } else if (e.data === YT.PlayerState.ENDED) {
     setPlayingState(false); stopProgress(); nextSong();
   }
@@ -522,16 +533,15 @@ function seekTo(e) {
   const rect = e.currentTarget.getBoundingClientRect(); const dur = player.getDuration() || 0;
   if (dur > 0) player.seekTo(((e.clientX - rect.left) / rect.width) * dur, true);
 }
-// --- ระบบจับการแตะ 2 ครั้ง (Double Tap) สำหรับมือถือ iOS และ Android ---
+
 let lastTapTime = 0;
 document.getElementById('blackScreen').addEventListener('touchend', function(event) {
   const currentTime = new Date().getTime();
   const tapDuration = currentTime - lastTapTime;
   
-  // ถ้าแตะครั้งที่ 2 ภายในเวลา 400 มิลลิวินาที (0.4 วินาที)
   if (tapDuration > 0 && tapDuration < 400) {
-    toggleBlackScreen(); // สั่งเปิด/ปิดจอดำ
-    event.preventDefault(); // ป้องกันไม่ให้เบราว์เซอร์เอาการแตะไปทำอย่างอื่น
+    toggleBlackScreen(); 
+    event.preventDefault(); 
   }
   lastTapTime = currentTime;
 });
